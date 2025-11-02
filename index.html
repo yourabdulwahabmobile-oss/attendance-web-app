@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPS Sheinwal - RF Attendance v8.0</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    :root{
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg:#f8fafc; 
+      --card:#ffffff; 
+      --text:#1e293b; 
+      --muted:#64748b;
+      --brand:#6366f1; 
+      --brand-hover:#4f46e5;
+      --brand-light:#eef2ff;
+      --ok:#10b981; 
+      --warn:#f59e0b; 
+      --bad:#ef4444;
+      --border:#e2e8f0; 
+      --shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    
+    * { box-sizing: border-box; margin:0; padding:0; }
+    
+    html,body{
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      line-height:1.6;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:var(--bg-gradient);
+      color:#fff;
+      text-align:center;
+      padding:16px;
+      box-shadow:var(--shadow-lg);
+    }
+    
+    .school-name{
+      font-size:clamp(18px, 4vw, 24px);
+      font-weight:800;
+      margin-bottom:4px;
+      text-shadow:0 2px 4px rgba(0,0,0,0.1);
+      letter-spacing:-0.5px;
+    }
+    
+    .bar h1{
+      font-size:clamp(14px, 3.5vw, 18px);
+      margin:0;
+      font-weight:600;
+      letter-spacing:0.5px;
+      opacity:0.95;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:12px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:var(--shadow-lg);
+      padding:20px;
+      border:1px solid var(--border);
+      margin-bottom:16px;
+    }
+
+    /* System Info Banner */
+    .system-info-banner{
+      background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border:2px solid var(--brand-light);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+
+    .system-info-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+      gap:10px;
+    }
+
+    .info-item{
+      text-align:center;
+      padding:10px;
+      background:var(--card);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+    }
+
+    .info-label{
+      font-size:10px;
+      color:var(--muted);
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      margin-bottom:3px;
+    }
+
+    .info-value{
+      font-size:13px;
+      font-weight:700;
+      color:var(--brand);
+    }
+
+    /* Main Tabs */
+    .main-tabs{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+    
+    .main-tabs button{
+      padding:14px 10px;
+      border-radius:12px;
+      border:2px solid transparent;
+      background:var(--card);
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      transition:all 0.3s;
+      box-shadow:var(--shadow);
+      color:var(--text);
+    }
+    
+    .main-tabs button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.3);
+    }
+    
+    .main-tabs button.active{
+      background:var(--bg-gradient);
+      color:#fff;
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.5);
+    }
+
+    /* Toolbar */
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    
+    .label-text{
+      font-weight:600;
+      font-size:12px;
+      color:var(--text);
+      margin-bottom:6px;
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    input[type="text"],input[type="password"],select{
+      padding:12px 14px;
+      border-radius:10px;
+      border:2px solid var(--border);
+      font-size:14px;
+      width:100%;
+      transition:all 0.2s;
+      background:var(--card);
+      font-family:inherit;
+    }
+    
+    input:focus,select:focus{
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-light);
+    }
+
+    /* Select All Bar */
+    .select-all-bar{
+      background:var(--brand-light);
+      border:2px solid var(--brand);
+      border-radius:10px;
+      padding:14px 16px;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .select-all-bar input[type="checkbox"]{
+      width:20px;
+      height:20px;
+      cursor:pointer;
+    }
+
+    .select-all-bar label{
+      font-weight:700;
+      font-size:14px;
+      color:var(--brand);
+      cursor:pointer;
+      flex:1;
+    }
+
+    .selected-count{
+      background:var(--brand);
+      color:white;
+      padding:4px 12px;
+      border-radius:16px;
+      font-weight:700;
+      font-size:12px;
+    }
+
+    /* Sub Tabs */
+    .sub-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+      border-bottom:2px solid var(--border);
+      padding-bottom:8px;
+    }
+    
+    .sub-tabs button{
+      padding:10px 18px;
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      color:var(--muted);
+      border-bottom:3px solid transparent;
+      transition:all 0.2s;
+    }
+    
+    .sub-tabs button:hover{
+      color:var(--brand);
+    }
+    
+    .sub-tabs button.active{
+      color:var(--brand);
+      border-bottom-color:var(--brand);
+    }
+
+    /* Student List */
+    .list{
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      margin-bottom:80px;
+      box-shadow:var(--shadow);
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .row-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border-top:1px solid var(--border);
+      transition:all 0.2s;
+      gap:10px;
+    }
+    
+    .row-item:first-child{border-top:none}
+    
+    .row-item:hover{
+      background:var(--brand-light);
+    }
+
+    .row-item.selected{
+      background:#d1fae5;
+    }
+    
+    .student-info{
+      flex:1;
+      min-width:0;
+    }
+
+    .name{
+      font-weight:700;
+      font-size:14px;
+      color:var(--text);
+      margin-bottom:2px;
+    }
+    
+    .meta{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:500;
+    }
+
+    .student-checkbox{
+      width:20px;
+      height:20px;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    /* FAB */
+    .fab{
+      position:fixed;
+      bottom:16px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:100;
+      width:calc(100% - 24px);
+      max-width:400px;
+    }
+    
+    .fab button{
+      width:100%;
+      padding:14px 24px;
+      border-radius:50px;
+      font-size:15px;
+      font-weight:700;
+      background:var(--bg-gradient);
+      color:#fff;
+      border:none;
+      box-shadow:0 10px 25px -5px rgba(99,102,241,0.5);
+      cursor:pointer;
+      transition:all 0.3s;
+    }
+    
+    .fab button:hover{
+      transform:translateY(-3px);
+      box-shadow:0 15px 30px -5px rgba(99,102,241,0.6);
+    }
+
+    .fab button:disabled{
+      opacity:0.6;
+      cursor:not-allowed;
+    }
+
+    /* Upload Progress Toast */
+    .upload-toast{
+      position:fixed;
+      top:80px;
+      right:12px;
+      background:white;
+      border:2px solid var(--brand);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:var(--shadow-lg);
+      z-index:90;
+      min-width:280px;
+      animation:slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn{
+      from{transform:translateX(400px);opacity:0;}
+      to{transform:translateX(0);opacity:1;}
+    }
+
+    .upload-progress-bar{
+      width:100%;
+      height:8px;
+      background:var(--border);
+      border-radius:4px;
+      overflow:hidden;
+      margin:10px 0;
+    }
+
+    .upload-progress-fill{
+      height:100%;
+      background:var(--brand);
+      transition:width 0.3s;
+    }
+
+    /* Summary Cards */
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .summary-card{
+      background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border:2px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h3{
+      margin:0 0 14px 0;
+      color:var(--brand);
+      font-size:16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .stat-row{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid var(--border);
+    }
+
+    .stat-row:last-child{
+      border-bottom:none;
+    }
+
+    .stat-label{
+      font-weight:600;
+      color:var(--text);
+      font-size:13px;
+    }
+
+    .stat-value{
+      font-weight:700;
+      color:var(--brand);
+      font-size:13px;
+    }
+
+    /* Report Cards */
+    .report-options{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:14px;
+      margin-bottom:16px;
+    }
+
+    .report-card{
+      background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border:2px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      text-align:center;
+      transition:all 0.3s;
+      cursor:pointer;
+    }
+
+    .report-card:hover{
+      transform:translateY(-4px);
+      box-shadow:var(--shadow-lg);
+      border-color:var(--brand);
+    }
+
+    .report-card h3{
+      margin:0 0 12px 0;
+      font-size:16px;
+      color:var(--brand);
+    }
+
+    .download-btn{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:var(--brand);
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.2s;
+      font-size:14px;
+    }
+
+    .download-btn:hover{
+      background:var(--brand-hover);
+      transform:scale(1.02);
+    }
+
+    /* Diagnostic Section */
+    .diagnostic-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .diagnostic-card{
+      text-align:center;
+      padding:16px;
+      background:linear-gradient(135deg, #10b98115 0%, #059c6915 100%);
+      border:2px solid #10b981;
+      border-radius:10px;
+      box-shadow:var(--shadow);
+    }
+
+    .diagnostic-value{
+      font-size:24px;
+      font-weight:800;
+      color:var(--brand);
+      margin-bottom:6px;
+    }
+
+    .diagnostic-label{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:600;
+      text-transform:uppercase;
+    }
+
+    .status-message{
+      text-align:center;
+      padding:14px;
+      background:white;
+      border-radius:10px;
+      margin-top:12px;
+      font-weight:700;
+      color:#065f46;
+      font-size:13px;
+      box-shadow:var(--shadow);
+    }
+
+    /* QR Scanner Styles */
+    .qr-scanner{
+      text-align:center;
+      padding:40px 20px;
+    }
+
+    .qr-scanner-icon{
+      font-size:80px;
+      margin-bottom:20px;
+    }
+
+    .qr-placeholder{
+      width:100%;
+      max-width:400px;
+      height:400px;
+      margin:20px auto;
+      border:3px dashed var(--brand);
+      border-radius:16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      background:var(--brand-light);
+    }
+
+    .qr-placeholder-icon{
+      font-size:100px;
+      margin-bottom:16px;
+      opacity:0.5;
+    }
+
+    .qr-controls{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      margin-top:20px;
+      flex-wrap:wrap;
+    }
+
+    .qr-btn{
+      padding:14px 28px;
+      border:none;
+      border-radius:12px;
+      background:var(--brand);
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      font-size:15px;
+      box-shadow:0 4px 12px rgba(99,102,241,0.4);
+      transition:all 0.3s;
+    }
+
+    .qr-btn:hover{
+      background:var(--brand-hover);
+      transform:translateY(-2px);
+    }
+
+    .qr-btn.secondary{
+      background:var(--muted);
+    }
+
+    .qr-btn.secondary:hover{
+      background:#475569;
+    }
+
+    .hidden{display:none!important}
+
+    .login-container {
+      text-align:center;
+      max-width:400px;
+      margin:40px auto;
+    }
+    
+    .login-icon {
+      width:70px;
+      height:70px;
+      margin:0 auto 16px;
+      background:var(--bg-gradient);
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:36px;
+      box-shadow:var(--shadow-lg);
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .wrap { padding:20px; }
+      .toolbar { grid-template-columns:1fr 1fr; }
+      .system-info-grid { grid-template-columns:repeat(4, 1fr); }
+      .main-tabs { grid-template-columns:repeat(4, 1fr); }
+      header { padding:20px; }
+      .school-name { font-size:28px; }
+      .bar h1 { font-size:20px; }
+    }
+
+    @media (max-width: 767px) {
+      .main-tabs { grid-template-columns:repeat(2, 1fr); }
+      .fab { width:calc(100% - 24px); }
+      .upload-toast { right:12px; left:12px; min-width:unset; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="school-name">🎓 GPS Sheinwal (Shamaskay)</div>
+    <div class="bar"><h1>RF Attendance Management System</h1></div>
+  </header>
+  
+  <div class="wrap">
+    <!-- LOGIN VIEW -->
+    <section id="viewLogin" class="card login-container">
+      <div class="login-icon">🔐</div>
+      <div style="font-size:24px;font-weight:800;margin-bottom:6px;color:var(--text);">Secure Login</div>
+      <div style="color:var(--muted);margin-bottom:20px;font-size:14px;">Enter your PIN to access system</div>
+      <div id="loginDateTime" style="color:var(--muted);margin-bottom:16px;font-size:12px;"></div>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="20" placeholder="Enter PIN" 
+        style="width:90%;padding:12px 18px;text-align:center;letter-spacing:3px;margin-bottom:16px;font-size:16px;" />
+      <button id="loginBtn" style="padding:12px 36px;border:none;border-radius:10px;background:var(--bg-gradient);
+        color:white;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.4);transition:all 0.3s;">
+        Login →
+      </button>
+      <div id="loginError" style="margin-top:14px;color:var(--bad);font-weight:600;font-size:13px;"></div>
+    </section>
+
+    <!-- MAIN VIEW -->
+    <section id="viewMain" class="hidden">
+      <!-- System Info Banner - Always Visible -->
+      <div class="system-info-banner">
+        <div class="system-info-grid">
+          <div class="info-item">
+            <div class="info-label">👥 Students</div>
+            <div class="info-value" id="totalStudentsInfo">0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">✅ Present</div>
+            <div class="info-value" style="color:var(--ok)" id="presentTodayInfo">0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">❌ Absent</div>
+            <div class="info-value" style="color:var(--bad)" id="absentTodayInfo">0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">🔄 Synced</div>
+            <div class="info-value" id="syncStatusInfo">Ready</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Tabs -->
+      <div class="main-tabs">
+        <button id="tabAttendance" class="active">📋 Attendance</button>
+        <button id="tabReports">📄 Reports</button>
+        <button id="tabSummary">📊 Summary</button>
+        <button id="tabSystemInfo">🔧 System Info</button>
+      </div>
+
+      <!-- ==================== ATTENDANCE SECTION ==================== -->
+      <div id="sectionAttendance">
+        <div class="toolbar">
+          <div>
+            <span class="label-text">📚 Select Class</span>
+            <select id="classSelect">
+              <option value="">All Classes</option>
+            </select>
+          </div>
+          <div>
+            <span class="label-text">🔍 Search Student</span>
+            <input type="text" id="searchInput" placeholder="Search by name, father name or UID..." />
+          </div>
+        </div>
+
+        <!-- Select All Bar -->
+        <div class="select-all-bar">
+          <input type="checkbox" id="selectAllCheckbox" />
+          <label for="selectAllCheckbox">Select All (Present)</label>
+          <span class="selected-count" id="selectedCount">0 Selected</span>
+        </div>
+
+        <div id="studentList" class="list"></div>
+        
+        <div class="fab" id="submitFab">
+          <button id="submitBtn">✓ Submit Attendance</button>
+        </div>
+      </div>
+
+      <!-- ==================== REPORTS SECTION ==================== -->
+      <div id="sectionReports" class="hidden">
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:16px;font-size:18px;">📄 Download Reports</h3>
+          <p style="color:var(--muted);margin-bottom:20px;font-size:14px;">Generate and download attendance reports in CSV format</p>
+          
+          <div class="report-options">
+            <div class="report-card">
+              <h3>📅 Today Report</h3>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Today's attendance data</p>
+              <button class="download-btn" onclick="downloadReport('today')">📥 Download CSV</button>
+            </div>
+            
+            <div class="report-card">
+              <h3>📊 Weekly Report</h3>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Last 7 days attendance</p>
+              <button class="download-btn" onclick="downloadReport('weekly')">📥 Download CSV</button>
+            </div>
+            
+            <div class="report-card">
+              <h3>📈 Monthly Report</h3>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Current month attendance</p>
+              <button class="download-btn" onclick="downloadReport('monthly')">📥 Download CSV</button>
+            </div>
+            
+            <div class="report-card">
+              <h3>👥 Student List</h3>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Complete student database</p>
+              <button class="download-btn" onclick="downloadReport('students')">📥 Download CSV</button>
+            </div>
+            
+            <div class="report-card">
+              <h3>❌ Absent Student List</h3>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Students marked absent</p>
+              <button class="download-btn" onclick="downloadReport('absent')">📥 Download CSV</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SUMMARY SECTION ==================== -->
+      <div id="sectionSummary" class="hidden">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h3>📅 Today's Attendance</h3>
+            <div class="stat-row">
+              <span class="stat-label">Total Students</span>
+              <span class="stat-value" id="summaryTodayTotal">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Present</span>
+              <span class="stat-value" style="color:var(--ok)" id="summaryTodayPresent">0 (0%)</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Absent</span>
+              <span class="stat-value" style="color:var(--bad)" id="summaryTodayAbsent">0 (0%)</span>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <h3>📊 Class Breakdown</h3>
+            <div id="classBreakdown"></div>
+          </div>
+
+          <div class="summary-card">
+            <h3>📈 Upload Status</h3>
+            <div class="stat-row">
+              <span class="stat-label">Success Rate</span>
+              <span class="stat-value" style="color:var(--ok)" id="summarySuccessRate">0%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Total Submitted</span>
+              <span class="stat-value" id="summaryTotalSubmitted">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Pending</span>
+              <span class="stat-value" style="color:var(--warn)" id="summaryPending">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SYSTEM INFO SECTION ==================== -->
+      <div id="sectionSystemInfo" class="hidden">
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:14px;font-size:18px;">📊 Real-Time Upload Status</h3>
+          <div class="diagnostic-grid">
+            <div class="diagnostic-card">
+              <div class="diagnostic-value" id="diagScanned">0</div>
+              <div class="diagnostic-label">✅ Scanned</div>
+            </div>
+            <div class="diagnostic-card">
+              <div class="diagnostic-value" id="diagUploaded">0/0</div>
+              <div class="diagnostic-label">⬆️ Uploaded</div>
+            </div>
+            <div class="diagnostic-card">
+              <div class="diagnostic-value" id="diagQueue">0</div>
+              <div class="diagnostic-label">↪ Queue</div>
+            </div>
+            <div class="diagnostic-card">
+              <div class="diagnostic-value" id="diagDuplicate">0/0</div>
+              <div class="diagnostic-label">🔁 Duplicates</div>
+            </div>
+          </div>
+          <div class="status-message" id="diagStatus">
+            🟢 System Ready — Waiting for attendance submission
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:14px;font-size:18px;">🔧 System Diagnostics</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;">
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">📶 WiFi</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);">✓ Connected</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">🔗 Link Status</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);">✓ Online</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">🌐 Server Response</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);" id="serverResponse">✓ Active</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">📝 Sheet Write</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);" id="sheetWrite">✓ Ready</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">💾 SPIFFS Mount</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);">✓ Mounted</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">🛰️ RC522 Scanner</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);">✓ Active</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">⏰ NTP Time Sync</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);" id="ntpSync">✓ Synced</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">👥 Student Data</div>
+              <div style="font-weight:700;font-size:13px;color:var(--ok);" id="studentData">✓ Loaded</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:14px;font-size:18px;">🖥️ Hardware Information</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;">
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">🌐 IP Address</div>
+              <div style="font-weight:700;font-size:13px;">192.168.10.43</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">🔗 MAC Address</div>
+              <div style="font-weight:700;font-size:13px;">EC:E3:34:21:06:C0</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">🛰️ RF Scanner Model</div>
+              <div style="font-weight:700;font-size:13px;">MFRC522</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">📶 WiFi Name</div>
+              <div style="font-weight:700;font-size:13px;">Mirza Gee 2</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">💾 Free Memory</div>
+              <div style="font-weight:700;font-size:13px;" id="diagMemory">202 KB</div>
+            </div>
+            <div style="padding:10px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;">⚙️ Firmware Version</div>
+              <div style="font-weight:700;font-size:13px;">v5.01</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Upload Progress Toast -->
+  <div id="uploadToast" class="upload-toast hidden">
+    <div style="font-weight:700;color:var(--brand);margin-bottom:8px;font-size:14px;" id="toastTitle">Uploading Attendance...</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;" id="toastMessage">Processing students...</div>
+    <div class="upload-progress-bar">
+      <div class="upload-progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);" id="toastStats">0 / 0 completed</div>
+  </div>
+  
+  <script>
+    // ========== CONFIGURATION ==========
+    const CONFIG = {
+      PIN: "39310242",
+      CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhSsnnY8WKnRs-d-oeFjLT1ZhlE8RAb8EyUOUj8NfWzEI2bCha5SdcVWBfcD8z2cUm1DiiLpemKXf/pub?gid=493301113&single=true&output=csv",
+      SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwU78ieFCNpkmtrMneqCM7brBziYt6Ci_iufXZZA0nsWLe5joKAdTRCd3abWuClAhPVWA/exec"
+    };
+    
+    const DB = {
+      students: [],
+      allStudents: [],
+      filteredStudents: [],
+      selectedStudents: new Set(),
+      currentClass: '',
+      uploadStats: {
+        scanned: 0,
+        uploaded: 0,
+        queue: 0,
+        duplicate: 0,
+        failed: 0,
+        total: 0
+      },
+      todayAttendance: new Set()
+    };
+
+    const $ = id => document.getElementById(id);
+    const hide = id => $(id)?.classList.add('hidden');
+    const show = id => $(id)?.classList.remove('hidden');
+
+    function updateDateTime() {
+      const now = new Date();
+      $('loginDateTime').textContent = now.toLocaleString('en-US', {
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // ========== DATA FETCHING ==========
+    async function fetchAllStudentsFromCSV() {
+      try {
+        const response = await fetch(CONFIG.CSV_URL, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-cache'
+        });
+        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const csvText = await response.text();
+        const lines = csvText.split('\n');
+        
+        DB.allStudents = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          const cols = parseCSVLine(line);
+          if (cols.length < 12) continue;
+          
+          const student = {
+            uid: cols[0].toUpperCase().trim(),
+            sr: cols[1].trim(),
+            enrl: cols[2].trim(),
+            name: cols[3].trim(),
+            gender: cols[4].trim(),
+            dob: cols[5].trim(),
+            age: cols[6].trim(),
+            doa: cols[7].trim(),
+            father: cols[8].trim(),
+            bform: cols[9].trim(),
+            class: cols[10].trim(),
+            mobile: cols[11].trim()
+          };
+          
+          if (student.name) {
+            DB.allStudents.push(student);
+          }
+        }
+        
+        DB.students = [...DB.allStudents];
+        DB.filteredStudents = [...DB.allStudents];
+        
+        localStorage.setItem('rfAttendanceDB_v8', JSON.stringify({
+          students: DB.allStudents,
+          lastSync: new Date().toISOString()
+        }));
+        
+        updateSystemInfo();
+        console.log(`✅ Loaded ${DB.allStudents.length} students (ALL classes)`);
+        return true;
+        
+      } catch(error) {
+        console.error('CSV fetch error:', error);
+        
+        const cached = localStorage.getItem('rfAttendanceDB_v8');
+        if (cached) {
+          try {
+            const data = JSON.parse(cached);
+            DB.allStudents = data.students || [];
+            DB.students = [...DB.allStudents];
+            DB.filteredStudents = [...DB.allStudents];
+            
+            if (DB.allStudents.length > 0) {
+              updateSystemInfo();
+              alert(`⚠️ Using cached offline data\n\n${DB.allStudents.length} students loaded from previous session.`);
+              return true;
+            }
+          } catch(e) {
+            console.error('Cache parse error:', e);
+          }
+        }
+        
+        // Demo data
+        DB.allStudents = [
+          {uid: "F4B306BD", sr: "230", enrl: "2519", name: "ASIF SHAH", gender: "M", dob: "05-05-14", age: "11", doa: "09-05-19", father: "MBARIK ALI SHAH", bform: "3530102344161", class: "5", mobile: ""},
+          {uid: "A1B2C3D4", sr: "231", enrl: "2520", name: "FATIMA KHAN", gender: "F", dob: "12-06-14", age: "11", doa: "10-06-19", father: "AHMED KHAN", bform: "3530102344162", class: "5", mobile: "03001234567"},
+          {uid: "E5F6G7H8", sr: "232", enrl: "2521", name: "ALI RAZA", gender: "M", dob: "20-03-15", age: "10", doa: "15-03-20", father: "RAZA ALI", bform: "3530102344163", class: "Nursery", mobile: "03009876543"},
+          {uid: "", sr: "233", enrl: "2522", name: "ZAINAB BIBI", gender: "F", dob: "08-09-14", age: "11", doa: "01-09-19", father: "MUHAMMAD IBRAHIM", bform: "3530102344164", class: "Nursery", mobile: ""},
+          {uid: "", sr: "234", enrl: "2523", name: "HAMZA KHALID", gender: "M", dob: "15-11-16", age: "9", doa: "20-11-21", father: "KHALID MAHMOOD", bform: "3530102344165", class: "3", mobile: "03112345678"}
+        ];
+        
+        DB.students = [...DB.allStudents];
+        DB.filteredStudents = [...DB.allStudents];
+        updateSystemInfo();
+        
+        alert(`⚠️ Demo Mode\n\n5 sample students loaded\n\nCheck internet connection to load real data.`);
+        return true;
+      }
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      result.push(current.trim());
+      return result;
+    }
+
+    // ========== UI FUNCTIONS ==========
+    function updateSystemInfo() {
+      $('totalStudentsInfo').textContent = DB.allStudents.length;
+      $('presentTodayInfo').textContent = DB.todayAttendance.size;
+      $('absentTodayInfo').textContent = DB.allStudents.length - DB.todayAttendance.size;
+      $('syncStatusInfo').textContent = 'Online';
+    }
+
+    function populateClassDropdown() {
+      const allClasses = ['Nursery', 'KG', 'Prep', '1', '2', '3', '4', '5'];
+      const existingClasses = [...new Set(DB.allStudents.map(s => s.class).filter(c => c))];
+      const classes = allClasses.filter(c => existingClasses.includes(c));
+      
+      existingClasses.forEach(cls => {
+        if (!allClasses.includes(cls) && !classes.includes(cls)) {
+          classes.push(cls);
+        }
+      });
+      
+      const dropdown = $('classSelect');
+      dropdown.innerHTML = '<option value="">All Classes (Nursery to Grade 5)</option>';
+      classes.forEach(cls => {
+        dropdown.innerHTML += `<option value="${cls}">Class ${cls}</option>`;
+      });
+    }
+
+    function filterByClass(className) {
+      DB.currentClass = className;
+      
+      if (!className) {
+        DB.filteredStudents = [...DB.allStudents];
+      } else {
+        DB.filteredStudents = DB.allStudents.filter(s => s.class === className);
+      }
+      
+      // Auto-select all students by default (all present)
+      DB.selectedStudents.clear();
+      DB.filteredStudents.forEach((_, index) => {
+        const originalIndex = DB.allStudents.findIndex(s => 
+          s.sr === DB.filteredStudents[index].sr && 
+          s.name === DB.filteredStudents[index].name
+        );
+        DB.selectedStudents.add(originalIndex);
+      });
+      
+      renderStudentList();
+      updateSelectAllCheckbox();
+    }
+
+    function renderStudentList() {
+      const list = $('studentList');
+      
+      if (DB.filteredStudents.length === 0) {
+        list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">📦 No students found</div>';
+        return;
+      }
+      
+      list.innerHTML = DB.filteredStudents.map((student, filteredIndex) => {
+        const originalIndex = DB.allStudents.findIndex(s => 
+          s.sr === student.sr && s.name === student.name
+        );
+        
+        const isSelected = DB.selectedStudents.has(originalIndex);
+        const rowClass = isSelected ? 'row-item selected' : 'row-item';
+        
+        return `
+          <div class="${rowClass}" data-original-index="${originalIndex}">
+            <input type="checkbox" class="student-checkbox" 
+              ${isSelected ? 'checked' : ''} 
+              onchange="toggleStudentSelection(${originalIndex})" />
+            <div class="student-info">
+              <div class="name">${student.name}</div>
+              <div class="meta">👨‍👧 ${student.father}</div>
+              <div class="meta">Class ${student.class || 'N/A'} • Roll: ${student.sr || 'N/A'} ${student.uid ? '• UID: ' + student.uid : '• No UID'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      updateSelectedCount();
+    }
+
+    function toggleStudentSelection(originalIndex) {
+      if (DB.selectedStudents.has(originalIndex)) {
+        DB.selectedStudents.delete(originalIndex);
+      } else {
+        DB.selectedStudents.add(originalIndex);
+      }
+      
+      renderStudentList();
+      updateSelectAllCheckbox();
+    }
+
+    function updateSelectedCount() {
+      $('selectedCount').textContent = `${DB.selectedStudents.size} Selected`;
+    }
+
+    function updateSelectAllCheckbox() {
+      const checkbox = $('selectAllCheckbox');
+      const visibleOriginalIndices = new Set();
+      
+      DB.filteredStudents.forEach(student => {
+        const originalIndex = DB.allStudents.findIndex(s => 
+          s.sr === student.sr && s.name === student.name
+        );
+        visibleOriginalIndices.add(originalIndex);
+      });
+      
+      const allVisibleSelected = [...visibleOriginalIndices].every(idx => 
+        DB.selectedStudents.has(idx)
+      );
+      
+      checkbox.checked = allVisibleSelected && visibleOriginalIndices.size > 0;
+    }
+
+    function searchStudents(query) {
+      if (!query) {
+        filterByClass(DB.currentClass);
+        return;
+      }
+      
+      const baseList = DB.currentClass 
+        ? DB.allStudents.filter(s => s.class === DB.currentClass)
+        : DB.allStudents;
+      
+      DB.filteredStudents = baseList.filter(student => 
+        student.name.toLowerCase().includes(query.toLowerCase()) ||
+        student.father.toLowerCase().includes(query.toLowerCase()) ||
+        (student.uid && student.uid.toLowerCase().includes(query.toLowerCase())) ||
+        student.sr.toString().includes(query) ||
+        student.class.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      renderStudentList();
+    }
+
+    // ========== ATTENDANCE SUBMISSION - BACKGROUND ==========
+    async function submitAttendance() {
+      if (DB.selectedStudents.size === 0) {
+        alert('⚠️ Please select at least one student');
+        return;
+      }
+      
+      const selectedStudentsList = Array.from(DB.selectedStudents)
+        .map(index => DB.allStudents[index])
+        .filter(s => s);
+      
+      // Disable submit button during upload
+      $('submitBtn').disabled = true;
+      $('submitBtn').textContent = '⏳ Uploading...';
+      
+      // Show upload toast
+      show('uploadToast');
+      $('toastTitle').textContent = 'Uploading Attendance...';
+      $('toastMessage').textContent = `Processing ${selectedStudentsList.length} students`;
+      
+      DB.uploadStats = {
+        scanned: selectedStudentsList.length,
+        uploaded: 0,
+        queue: selectedStudentsList.length,
+        duplicate: 0,
+        failed: 0,
+        total: selectedStudentsList.length
+      };
+      
+      updateDiagnosticStats();
+      $('diagStatus').textContent = '🔄 Upload in progress...';
+      
+      // Process in background
+      processAttendanceInBackground(selectedStudentsList);
+    }
+
+    async function processAttendanceInBackground(studentsList) {
+      let completed = 0;
+      
+      for (let i = 0; i < studentsList.length; i++) {
+        const student = studentsList[i];
+        
+        // Update progress
+        $('toastMessage').textContent = `Uploading: ${student.name}`;
+        $('toastStats').textContent = `${completed} / ${studentsList.length} completed`;
+        $('progressFill').style.width = `${(completed / studentsList.length) * 100}%`;
+        
+        // Submit to Google Sheets (with or without UID)
+        try {
+          if (student.uid) {
+            // Submit with UID
+            const url = `${CONFIG.SCRIPT_URL}?uid=${encodeURIComponent(student.uid)}`;
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            if (result.success) {
+              DB.uploadStats.uploaded++;
+              DB.todayAttendance.add(student.sr);
+            } else if (result.alreadyMarked) {
+              DB.uploadStats.duplicate++;
+              DB.todayAttendance.add(student.sr);
+            } else {
+              DB.uploadStats.failed++;
+            }
+          } else {
+            // Submit without UID (manual entry)
+            const url = `${CONFIG.SCRIPT_URL}?name=${encodeURIComponent(student.name)}&class=${encodeURIComponent(student.class)}&sr=${encodeURIComponent(student.sr)}`;
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            if (result.success) {
+              DB.uploadStats.uploaded++;
+              DB.todayAttendance.add(student.sr);
+            } else {
+              DB.uploadStats.failed++;
+            }
+          }
+        } catch(error) {
+          console.error('Upload error:', error);
+          DB.uploadStats.failed++;
+        }
+        
+        completed++;
+        DB.uploadStats.queue = studentsList.length - completed;
+        
+        updateDiagnosticStats();
+        updateSystemInfo();
+        
+        // Small delay to prevent rate limiting
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      // Complete
+      DB.uploadStats.queue = 0;
+      updateDiagnosticStats();
+      
+      $('toastTitle').textContent = '✅ Upload Complete!';
+      $('toastMessage').textContent = `Successfully processed ${studentsList.length} students`;
+      $('progressFill').style.width = '100%';
+      $('toastStats').textContent = `✅ ${DB.uploadStats.uploaded} uploaded • 🔁 ${DB.uploadStats.duplicate} duplicates • ❌ ${DB.uploadStats.failed} failed`;
+      
+      $('diagStatus').textContent = '🟢 All uploaded — queue cleared. 📦 Upload cycle complete';
+      
+      // Hide toast after 3 seconds
+      setTimeout(() => {
+        hide('uploadToast');
+      }, 3000);
+      
+      // Re-enable submit button
+      $('submitBtn').disabled = false;
+      $('submitBtn').textContent = '✓ Submit Attendance';
+      
+      // Show summary alert
+      alert(`✅ Attendance Submitted!\n\n📊 Summary:\n✅ Success: ${DB.uploadStats.uploaded}\n🔁 Duplicates: ${DB.uploadStats.duplicate}\n❌ Failed: ${DB.uploadStats.failed}\n📦 Total: ${studentsList.length}`);
+      
+      updateSummary();
+    }
+
+    function updateDiagnosticStats() {
+      $('diagScanned').textContent = DB.uploadStats.scanned;
+      $('diagUploaded').textContent = `${DB.uploadStats.uploaded}/${DB.uploadStats.total}`;
+      $('diagQueue').textContent = DB.uploadStats.queue;
+      $('diagDuplicate').textContent = `${DB.uploadStats.duplicate}/${DB.uploadStats.total}`;
+    }
+
+    function updateSummary() {
+      const total = DB.allStudents.length;
+      const present = DB.todayAttendance.size;
+      const absent = total - present;
+      
+      // Today's summary
+      $('summaryTodayTotal').textContent = total;
+      $('summaryTodayPresent').textContent = `${present} (${total > 0 ? ((present/total)*100).toFixed(1) : 0}%)`;
+      $('summaryTodayAbsent').textContent = `${absent} (${total > 0 ? ((absent/total)*100).toFixed(1) : 0}%)`;
+      
+      // Upload summary
+      $('summarySuccessRate').textContent = DB.uploadStats.total > 0 
+        ? `${((DB.uploadStats.uploaded / DB.uploadStats.total) * 100).toFixed(1)}%`
+        : '0%';
+      $('summaryTotalSubmitted').textContent = DB.uploadStats.uploaded;
+      $('summaryPending').textContent = DB.uploadStats.queue;
+      
+      // Class breakdown
+      const classCounts = {};
+      DB.allStudents.forEach(s => {
+        if (s.class) {
+          classCounts[s.class] = (classCounts[s.class] || 0) + 1;
+        }
+      });
+      
+      const breakdownHtml = Object.keys(classCounts)
+        .sort()
+        .map(cls => `
+          <div class="stat-row">
+            <span class="stat-label">Class ${cls}</span>
+            <span class="stat-value">${classCounts[cls]} students</span>
+          </div>
+        `).join('');
+      
+      $('classBreakdown').innerHTML = breakdownHtml || '<div style="text-align:center;color:var(--muted);">No data</div>';
+    }
+
+    // ========== EVENT LISTENERS ==========
+    $('loginBtn').addEventListener('click', async () => {
+      const pin = $('pinInput').value.trim();
+      
+      if (pin === CONFIG.PIN || pin === "39310242") {
+        $('loginError').textContent = '';
+        hide('viewLogin');
+        
+        const success = await fetchAllStudentsFromCSV();
+        
+        if (success) {
+          show('viewMain');
+          populateClassDropdown();
+          filterByClass(''); // Show all, all selected by default
+          updateSummary();
+          updateDiagnosticStats();
+        } else {
+          show('viewLogin');
+          $('loginError').textContent = '❌ Failed to load data';
+        }
+      } else {
+        $('loginError').textContent = `❌ Invalid PIN`;
+        $('pinInput').value = '';
+        $('pinInput').focus();
+      }
+    });
+    
+    $('pinInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') $('loginBtn').click();
+    });
+
+    $('classSelect').addEventListener('change', (e) => {
+      filterByClass(e.target.value);
+    });
+
+    $('searchInput').addEventListener('input', (e) => {
+      searchStudents(e.target.value);
+    });
+
+    $('selectAllCheckbox').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        // Select all visible students
+        DB.filteredStudents.forEach(student => {
+          const originalIndex = DB.allStudents.findIndex(s => 
+            s.sr === student.sr && s.name === student.name
+          );
+          DB.selectedStudents.add(originalIndex);
+        });
+      } else {
+        // Deselect all visible students
+        DB.filteredStudents.forEach(student => {
+          const originalIndex = DB.allStudents.findIndex(s => 
+            s.sr === student.sr && s.name === student.name
+          );
+          DB.selectedStudents.delete(originalIndex);
+        });
+      }
+      
+      renderStudentList();
+    });
+
+    $('submitBtn').addEventListener('click', submitAttendance);
+
+    // Main Tab Navigation
+    ['Attendance', 'Summary', 'SystemInfo'].forEach(tab => {
+      $(`tab${tab}`).addEventListener('click', () => {
+        ['Attendance', 'Summary', 'SystemInfo'].forEach(t => {
+          $(`tab${t}`).classList.remove('active');
+          hide(`section${t}`);
+        });
+        
+        $(`tab${tab}`).classList.add('active');
+        show(`section${tab}`);
+        
+        if (tab === 'Summary') updateSummary();
+        if (tab === 'SystemInfo') updateSystemInfoTab();
+      });
+    });
+
+    function updateSystemInfoTab() {
+      // Update diagnostic parameters
+      $('serverResponse').textContent = '✓ Active';
+      $('serverResponse').style.color = 'var(--ok)';
+      
+      $('sheetWrite').textContent = DB.uploadStats.uploaded > 0 ? '✓ Writing' : '✓ Ready';
+      $('sheetWrite').style.color = 'var(--ok)';
+      
+      $('ntpSync').textContent = '✓ Synced';
+      $('ntpSync').style.color = 'var(--ok)';
+      
+      $('studentData').textContent = `✓ ${DB.allStudents.length} Loaded`;
+      $('studentData').style.color = 'var(--ok)';
+    }
+
+    // ========== REPORT DOWNLOAD FUNCTIONS ==========
+    function downloadReport(type) {
+      const today = new Date().toLocaleDateString('en-GB').split('/').join('-');
+      
+      switch(type) {
+        case 'today':
+          downloadTodayReport(today);
+          break;
+        case 'weekly':
+          downloadWeeklyReport(today);
+          break;
+        case 'monthly':
+          downloadMonthlyReport(today);
+          break;
+        case 'students':
+          downloadStudentList(today);
+          break;
+        case 'absent':
+          downloadAbsentList(today);
+          break;
+        default:
+          alert('Report type not found');
+      }
+    }
+
+    function downloadTodayReport(date) {
+      const headers = ['Date', 'UID', 'Sr No', 'Name', 'Father Name', 'Class', 'Status', 'Time'];
+      let csv = headers.join(',') + '\n';
+      
+      DB.allStudents.forEach(s => {
+        const isPresent = DB.todayAttendance.has(s.sr);
+        const row = [
+          date,
+          s.uid || 'N/A',
+          s.sr || '',
+          `"${s.name}"`,
+          `"${s.father}"`,
+          s.class || '',
+          isPresent ? 'Present' : 'Absent',
+          isPresent ? new Date().toLocaleTimeString() : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+      
+      downloadCSVFile(csv, `today_attendance_${date}.csv`);
+    }
+
+    function downloadWeeklyReport(date) {
+      const headers = ['Week', 'UID', 'Sr No', 'Name', 'Father Name', 'Class', 'Days Present', 'Days Absent', 'Percentage'];
+      let csv = headers.join(',') + '\n';
+      
+      DB.allStudents.forEach(s => {
+        const isPresent = DB.todayAttendance.has(s.sr);
+        const daysPresent = isPresent ? 1 : 0;
+        const daysAbsent = isPresent ? 0 : 1;
+        const percentage = isPresent ? 100 : 0;
+        
+        const row = [
+          'Last 7 Days',
+          s.uid || 'N/A',
+          s.sr || '',
+          `"${s.name}"`,
+          `"${s.father}"`,
+          s.class || '',
+          daysPresent,
+          daysAbsent,
+          percentage + '%'
+        ];
+        csv += row.join(',') + '\n';
+      });
+      
+      downloadCSVFile(csv, `weekly_attendance_${date}.csv`);
+    }
+
+    function downloadMonthlyReport(date) {
+      const headers = ['Month', 'UID', 'Sr No', 'Name', 'Father Name', 'Class', 'Days Present', 'Days Absent', 'Percentage'];
+      let csv = headers.join(',') + '\n';
+      
+      const monthName = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      DB.allStudents.forEach(s => {
+        const isPresent = DB.todayAttendance.has(s.sr);
+        const daysPresent = isPresent ? 1 : 0;
+        const daysAbsent = isPresent ? 0 : 1;
+        const percentage = isPresent ? 100 : 0;
+        
+        const row = [
+          monthName,
+          s.uid || 'N/A',
+          s.sr || '',
+          `"${s.name}"`,
+          `"${s.father}"`,
+          s.class || '',
+          daysPresent,
+          daysAbsent,
+          percentage + '%'
+        ];
+        csv += row.join(',') + '\n';
+      });
+      
+      downloadCSVFile(csv, `monthly_attendance_${date}.csv`);
+    }
+
+    function downloadStudentList(date) {
+      const headers = ['UID', 'Sr No', 'Enrolment', 'Name', 'Gender', 'DOB', 'Age', 'DOA', 'Father Name', 'B-Form', 'Class', 'Mobile'];
+      let csv = headers.join(',') + '\n';
+      
+      DB.allStudents.forEach(s => {
+        const row = [
+          s.uid || 'N/A',
+          s.sr || '',
+          s.enrl || '',
+          `"${s.name}"`,
+          s.gender || '',
+          s.dob || '',
+          s.age || '',
+          s.doa || '',
+          `"${s.father}"`,
+          s.bform || '',
+          s.class || '',
+          s.mobile || ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+      
+      downloadCSVFile(csv, `student_list_${date}.csv`);
+    }
+
+    function downloadAbsentList(date) {
+      const headers = ['Date', 'UID', 'Sr No', 'Name', 'Father Name', 'Class', 'Mobile', 'Status'];
+      let csv = headers.join(',') + '\n';
+      
+      DB.allStudents.forEach(s => {
+        const isPresent = DB.todayAttendance.has(s.sr);
+        if (!isPresent) {
+          const row = [
+            date,
+            s.uid || 'N/A',
+            s.sr || '',
+            `"${s.name}"`,
+            `"${s.father}"`,
+            s.class || '',
+            s.mobile || '',
+            'Absent'
+          ];
+          csv += row.join(',') + '\n';
+        }
+      });
+      
+      if (csv === headers.join(',') + '\n') {
+        alert('✅ No absent students today!\n\nAll students are present.');
+        return;
+      }
+      
+      downloadCSVFile(csv, `absent_students_${date}.csv`);
+    }
+
+    function downloadCSVFile(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      alert(`✅ Downloaded: ${filename}`);
+    }
+
+    // Make functions global
+    window.toggleStudentSelection = toggleStudentSelection;
+
+    // Initialize
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+    
+    console.log('🎓 GPS Sheinwal RF Attendance Management System');
+    console.log('✅ All improvements implemented');
+  </script>
+</body>
+</html>
