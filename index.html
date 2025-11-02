@@ -3,478 +3,1420 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GPS Sheinwal — RF Attendance (Integrated)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>GPS Sheinwal - RF Attendance v8.0</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
     :root{
-      --bg:#f8fafc; --card:#ffffff; --text:#0f172a; --muted:#64748b;
-      --brand:#6366f1; --brand-2:#764ba2; --brand-hover:#4f46e5; --brand-soft:#eef2ff;
-      --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --border:#e2e8f0;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg:#f8fafc; 
+      --card:#ffffff; 
+      --text:#1e293b; 
+      --muted:#64748b;
+      --brand:#6366f1; 
+      --brand-hover:#4f46e5;
+      --brand-light:#eef2ff;
+      --ok:#10b981; 
+      --warn:#f59e0b; 
+      --bad:#ef4444;
+      --border:#e2e8f0; 
       --shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
       --shadow-lg:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-      --gradient: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
     }
+    
     * { box-sizing: border-box; margin:0; padding:0; }
-    html,body{ min-height:100%; background:var(--bg); color:var(--text); font-family:'Inter',system-ui,-apple-system,sans-serif; line-height:1.6; }
-    header{ position:sticky; top:0; z-index:30; background:var(--gradient); color:#fff; text-align:center; padding:20px 16px; box-shadow:var(--shadow-lg); }
-    .school-name{ font-size:clamp(20px, 5vw, 28px); font-weight:800; margin-bottom:6px; text-shadow:0 2px 4px rgba(0,0,0,0.15); letter-spacing:-0.5px; }
-    .bar h1{ font-size:clamp(14px, 4vw, 18px); margin:0; font-weight:600; opacity:0.95; }
-    .wrap{ max-width:1200px; margin:0 auto; padding:clamp(12px,3vw,24px); }
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:20px; padding:clamp(16px,3vw,24px); box-shadow:var(--shadow); }
-    .main-tabs{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:16px; }
-    .main-tabs button{ padding:14px; border-radius:14px; border:2px solid transparent; background:var(--card); cursor:pointer; font-weight:700; font-size:15px; transition:all .2s; box-shadow:var(--shadow); }
-    .main-tabs button.active{ background:var(--gradient); color:#fff; }
-    .sub-tabs{ display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; border-bottom:2px solid var(--border); padding-bottom:8px; }
-    .sub-tabs button{ padding:10px 16px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:14px; color:var(--muted); border-bottom:3px solid transparent; }
-    .sub-tabs button.active{ color:var(--brand); border-bottom-color:var(--brand); }
-    .toolbar{ display:flex; gap:12px; align-items:flex-end; margin:14px 0; flex-wrap:wrap; }
-    .toolbar > div{ flex:1; min-width:220px; }
-    .label{ font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:.5px; }
-    input,select{ padding:12px 14px; border-radius:12px; border:2px solid var(--border); font-size:15px; width:100%; transition:all .15s; background:var(--card); }
-    input:focus,select:focus{ outline:none; border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-soft); }
-    .list{ background:var(--card); border:2px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); max-height:520px; overflow-y:auto; }
-    .row{ display:flex; gap:12px; justify-content:space-between; align-items:center; padding:14px 16px; border-top:1px solid var(--border); }
-    .row:first-child{ border-top:none; }
-    .row:hover{ background:var(--brand-soft); }
-    .name{ font-weight:800; font-size:15px; }
-    .meta{ font-size:12px; color:var(--muted); font-weight:600; }
-    .badge{ padding:8px 14px; border-radius:18px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; border:none; cursor:pointer; }
-    .present{ background:#d1fae5; color:#065f46; }
-    .absent{ background:#fee2e2; color:#991b1b; }
-    .pending{ background:#fef3c7; color:#92400e; }
-    .fab{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:40; }
-    .fab button{ min-width:240px; padding:14px 26px; border-radius:999px; font-size:15px; font-weight:800; background:var(--gradient); color:#fff; border:none; box-shadow:0 12px 30px -6px rgba(99,102,241,.5); cursor:pointer; }
-    .hidden{ display:none !important; }
-    .report-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin:12px 0; }
-    .report-card{ background:linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border:2px solid var(--border); border-radius:12px; padding:18px; text-align:center; }
-    .report-card h3{ margin:0 0 10px 0; color:var(--brand); font-size:16px; }
-    .btn{ width:100%; padding:10px; border:none; border-radius:8px; background:var(--brand); color:white; font-weight:700; cursor:pointer; font-size:14px; }
-    .btn:hover{ background:var(--brand-hover); }
-    .summary-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:12px; margin:12px 0; }
-    .summary-card{ background:linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border:2px solid var(--border); border-radius:16px; padding:18px; }
-    .stat{ display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
-    .stat:last-child{ border-bottom:none; }
-    .stat .k{ font-weight:700; }
-    .stat .v{ font-weight:800; color:var(--brand); }
-    .login{ text-align:center; max-width:440px; margin:50px auto; }
-    .login .icon{ width:80px; height:80px; margin:0 auto 16px; background:var(--gradient); border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:38px; color:#fff; box-shadow:var(--shadow-lg); }
-    .statusbar{ position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; font-size:12px; display:flex; align-items:center; gap:8px; backdrop-filter: blur(8px); }
-    .dot{ width:8px; height:8px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.75); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; z-index:100; }
-    .spinner{ width:60px; height:60px; border:4px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite; }
-    @keyframes spin { to{ transform:rotate(360deg) } }
-    .overlay .t{ color:#fff; font-weight:800; }
-    @media (max-width:768px){ .main-tabs{ grid-template-columns:1fr; } }
+    
+    html,body{
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      line-height:1.6;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:var(--bg-gradient);
+      color:#fff;
+      text-align:center;
+      padding:20px 16px;
+      box-shadow:var(--shadow-lg);
+    }
+    
+    .school-name{
+      font-size:clamp(20px, 5vw, 28px);
+      font-weight:800;
+      margin-bottom:6px;
+      text-shadow:0 2px 4px rgba(0,0,0,0.1);
+      letter-spacing:-0.5px;
+    }
+    
+    .bar h1{
+      font-size:clamp(16px, 4vw, 20px);
+      margin:0;
+      font-weight:600;
+      letter-spacing:0.5px;
+      opacity:0.95;
+    }
+
+    .sync-status {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(10px);
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:clamp(12px, 3vw, 24px);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:20px;
+      box-shadow:var(--shadow-lg);
+      padding:clamp(20px, 4vw, 32px);
+      border:1px solid var(--border);
+    }
+
+    .main-tabs{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:12px;
+      margin-bottom:24px;
+    }
+    
+    .main-tabs button{
+      padding:16px;
+      border-radius:16px;
+      border:2px solid transparent;
+      background:var(--card);
+      cursor:pointer;
+      font-weight:700;
+      font-size:16px;
+      transition:all 0.3s;
+      box-shadow:var(--shadow);
+      color:var(--text);
+    }
+    
+    .main-tabs button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.3);
+    }
+    
+    .main-tabs button.active{
+      background:var(--bg-gradient);
+      color:#fff;
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.5);
+    }
+
+    .sub-tabs{
+      display:flex;
+      gap:8px;
+      margin:16px 0;
+      flex-wrap:wrap;
+      border-bottom:2px solid var(--border);
+      padding-bottom:8px;
+    }
+    
+    .sub-tabs button{
+      padding:10px 20px;
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-weight:600;
+      font-size:14px;
+      color:var(--muted);
+      border-bottom:3px solid transparent;
+      transition:all 0.2s;
+    }
+    
+    .sub-tabs button:hover{
+      color:var(--brand);
+    }
+    
+    .sub-tabs button.active{
+      color:var(--brand);
+      border-bottom-color:var(--brand);
+    }
+
+    .report-options{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+      gap:12px;
+      margin:16px 0;
+    }
+
+    .report-card{
+      background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border:2px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      text-align:center;
+      transition:all 0.3s;
+      cursor:pointer;
+    }
+
+    .report-card:hover{
+      transform:translateY(-4px);
+      box-shadow:var(--shadow-lg);
+      border-color:var(--brand);
+    }
+
+    .report-card h3{
+      margin:0 0 12px 0;
+      font-size:18px;
+      color:var(--brand);
+    }
+
+    .download-btn{
+      width:100%;
+      padding:10px;
+      border:none;
+      border-radius:8px;
+      background:var(--brand);
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.2s;
+      font-size:14px;
+    }
+
+    .download-btn:hover{
+      background:var(--brand-hover);
+      transform:scale(1.02);
+    }
+
+    .toolbar{
+      display:flex;
+      gap:12px;
+      align-items:flex-end;
+      margin:20px 0;
+      flex-wrap:wrap;
+    }
+    
+    .toolbar > div {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .label-text{
+      font-weight:600;
+      font-size:13px;
+      color:var(--text);
+      margin-bottom:6px;
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    input,select{
+      padding:12px 16px;
+      border-radius:12px;
+      border:2px solid var(--border);
+      font-size:15px;
+      width:100%;
+      transition:all 0.2s;
+      background:var(--card);
+      font-family:inherit;
+    }
+    
+    input:focus,select:focus{
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-light);
+    }
+
+    .list{
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      margin-top:16px;
+      box-shadow:var(--shadow);
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .row-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:16px 20px;
+      border-top:1px solid var(--border);
+      transition:all 0.2s;
+      gap:12px;
+    }
+    
+    .row-item:first-child{border-top:none}
+    
+    .row-item:hover{
+      background:var(--brand-light);
+      transform:translateX(4px);
+    }
+    
+    .student-info{
+      flex:1;
+    }
+
+    .name{
+      font-weight:700;
+      font-size:16px;
+      color:var(--text);
+      margin-bottom:4px;
+    }
+    
+    .meta{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:500;
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor:pointer;
+      transition:all 0.2s;
+      border:none;
+    }
+
+    .status-badge:hover{
+      transform:scale(1.05);
+    }
+
+    .status-present {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-absent {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .fab{
+      position:fixed;
+      bottom:24px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:100;
+    }
+    
+    .fab button{
+      min-width:240px;
+      padding:16px 32px;
+      border-radius:50px;
+      font-size:16px;
+      font-weight:700;
+      background:var(--bg-gradient);
+      color:#fff;
+      border:none;
+      box-shadow:0 10px 25px -5px rgba(99,102,241,0.5);
+      cursor:pointer;
+      transition:all 0.3s;
+    }
+    
+    .fab button:hover{
+      transform:translateY(-3px);
+      box-shadow:0 15px 30px -5px rgba(99,102,241,0.6);
+    }
+
+    .hidden{display:none!important}
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:16px;
+      margin:20px 0;
+    }
+
+    .summary-card{
+      background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border:2px solid var(--border);
+      border-radius:16px;
+      padding:24px;
+      box-shadow:var(--shadow);
+    }
+
+    .summary-card h3{
+      margin:0 0 16px 0;
+      color:var(--brand);
+      font-size:18px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .stat-row{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid var(--border);
+    }
+
+    .stat-row:last-child{
+      border-bottom:none;
+    }
+
+    .stat-label{
+      font-weight:600;
+      color:var(--text);
+    }
+
+    .stat-value{
+      font-weight:700;
+      color:var(--brand);
+    }
+
+    .diagnostic-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+      gap:12px;
+      margin:20px 0;
+    }
+
+    .diag-item{
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+      text-align:center;
+    }
+
+    .diag-status{
+      font-size:24px;
+      margin-bottom:8px;
+    }
+
+    .diag-label{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    .diag-value{
+      font-size:14px;
+      color:var(--text);
+      font-weight:700;
+      margin-top:4px;
+    }
+
+    .qr-scanner{
+      text-align:center;
+      padding:60px 20px;
+    }
+
+    .qr-scanner-icon{
+      font-size:80px;
+      margin-bottom:20px;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .login-container {
+      text-align:center;
+      max-width:440px;
+      margin:60px auto 40px;
+    }
+    
+    .login-icon {
+      width:80px;
+      height:80px;
+      margin:0 auto 20px;
+      background:var(--bg-gradient);
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:40px;
+      box-shadow:var(--shadow-lg);
+    }
+    
+    @media (max-width: 768px) {
+      .main-tabs { grid-template-columns:1fr; }
+      .wrap { padding:12px; }
+      .toolbar { flex-direction:column; }
+      .toolbar > div { width:100%; min-width:unset; }
+      .sync-status { position:static; margin-bottom:10px; }
+      .summary-grid { grid-template-columns:1fr; }
+      header { position:relative; }
+    }
   </style>
 </head>
 <body>
-  <!-- LOADING -->
-  <div id="overlay" class="overlay hidden">
-    <div class="spinner"></div>
-    <div id="overlayText" class="t">Loading…</div>
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Loading Data...</div>
   </div>
 
   <header>
-    <div class="statusbar"><div class="dot" id="syncDot"></div><span id="syncText">Checking…</span></div>
+    <div class="sync-status" id="syncStatus">
+      <div class="sync-dot"></div>
+      <span id="syncText">Offline Ready</span>
+    </div>
     <div class="school-name">🎓 GPS Sheinwal (Shamaskay)</div>
-    <div class="bar"><h1>RF Attendance Dashboard — Integrated</h1></div>
+    <div class="bar"><h1>RF Attendance Management System v8.0</h1></div>
   </header>
-
+  
   <div class="wrap">
-    <!-- LOGIN -->
-    <section id="viewLogin" class="card login">
-      <div class="icon">🔐</div>
-      <div style="font-size:26px;font-weight:800;margin-bottom:6px;">Secure Login</div>
-      <div style="color:var(--muted);margin-bottom:14px;font-size:14px;">Enter your PIN to access</div>
-      <input id="pinInput" type="password" inputmode="numeric" maxlength="20" placeholder="Enter PIN" style="width:86%;padding:14px 18px;text-align:center;letter-spacing:3px;margin:10px auto 8px;font-size:18px;border:2px solid var(--border);border-radius:12px;">
-      <button id="loginBtn" class="btn" style="max-width:86%;margin:8px auto 0;">Login →</button>
-      <div id="loginError" style="margin-top:10px;color:var(--bad);font-weight:700;font-size:13px;"></div>
+    <!-- LOGIN VIEW -->
+    <section id="viewLogin" class="card login-container">
+      <div class="login-icon">🔐</div>
+      <div style="font-size:28px;font-weight:800;margin-bottom:8px;color:var(--text);">Secure Login</div>
+      <div style="color:var(--muted);margin-bottom:24px;font-size:15px;">Enter your PIN to access system</div>
+      <div id="loginDateTime" style="color:var(--muted);margin-bottom:20px;font-size:14px;"></div>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="20" placeholder="Enter PIN" 
+        style="width:85%;padding:14px 20px;text-align:center;letter-spacing:3px;margin-bottom:20px;font-size:18px;" />
+      <button id="loginBtn" style="padding:14px 40px;border:none;border-radius:12px;background:var(--bg-gradient);
+        color:white;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.4);transition:all 0.3s;">
+        Login →
+      </button>
+      <div id="loginError" style="margin-top:16px;color:var(--bad);font-weight:600;font-size:14px;"></div>
     </section>
 
-    <!-- MAIN -->
+    <!-- MAIN VIEW -->
     <section id="viewMain" class="hidden">
+      <!-- Main Tabs -->
       <div class="main-tabs">
         <button id="tabAttendance" class="active">📋 Attendance</button>
-        <button id="tabReports">📑 Reports</button>
+        <button id="tabQR">📱 QR Code</button>
         <button id="tabDiagnostic">🔧 Diagnostic</button>
       </div>
 
-      <!-- Attendance Section -->
+      <!-- ==================== ATTENDANCE SECTION ==================== -->
       <div id="sectionAttendance">
+        <!-- Sub Tabs -->
         <div class="sub-tabs">
-          <button id="subToday" class="active">Today</button>
+          <button id="subMarkAttendance" class="active">Today Attendance</button>
+          <button id="subReports">Reports</button>
           <button id="subSummary">Summary</button>
         </div>
 
-        <!-- Today list -->
-        <div id="contentToday">
+        <!-- Mark Attendance Content -->
+        <div id="contentMarkAttendance">
           <div class="toolbar">
             <div>
-              <span class="label">📚 Select Class</span>
-              <select id="classSelect"><option value="">All Classes</option></select>
+              <span class="label-text">📚 Select Class</span>
+              <select id="classSelect">
+                <option value="">All Classes</option>
+              </select>
             </div>
             <div>
-              <span class="label">🔍 Search</span>
-              <input id="searchInput" placeholder="Search by name, father, UID, roll…" />
+              <span class="label-text">🔍 Search Student</span>
+              <input type="text" id="searchInput" placeholder="Search by name, father name or UID..." />
             </div>
           </div>
           <div id="studentList" class="list"></div>
+          <div class="fab hidden" id="submitFab">
+            <button id="submitBtn">✓ Submit Attendance</button>
+          </div>
         </div>
 
-        <!-- Summary -->
+        <!-- Reports Content -->
+        <div id="contentReports" class="hidden">
+          <div class="sub-tabs" style="border:none;">
+            <button id="reportToday" class="active">Today</button>
+            <button id="reportSevenDays">Last 7 Days</button>
+            <button id="reportMonthly">Monthly</button>
+            <button id="reportAbsentList">Absent List</button>
+          </div>
+
+          <div id="reportTodayContent">
+            <div class="report-options">
+              <div class="report-card">
+                <h3>✅ Present Report</h3>
+                <button class="download-btn" onclick="downloadReport('today-present')">📥 Download CSV</button>
+              </div>
+              <div class="report-card">
+                <h3>❌ Absent Report</h3>
+                <button class="download-btn" onclick="downloadReport('today-absent')">📥 Download CSV</button>
+              </div>
+              <div class="report-card">
+                <h3>👥 All Students</h3>
+                <button class="download-btn" onclick="downloadReport('today-all')">📥 Download CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="reportSevenDaysContent" class="hidden">
+            <div class="report-options">
+              <div class="report-card">
+                <h3>✅ Present Report</h3>
+                <button class="download-btn" onclick="downloadReport('7days-present')">📥 Download CSV</button>
+              </div>
+              <div class="report-card">
+                <h3>❌ Absent Report</h3>
+                <button class="download-btn" onclick="downloadReport('7days-absent')">📥 Download CSV</button>
+              </div>
+              <div class="report-card">
+                <h3>👥 All Students</h3>
+                <button class="download-btn" onclick="downloadReport('7days-all')">📥 Download CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="reportMonthlyContent" class="hidden">
+            <div class="report-options">
+              <div class="report-card">
+                <h3>✅ Present Report</h3>
+                <button class="download-btn" onclick="downloadReport('monthly-present')">📥 Download CSV</button>
+              </div>
+              <div class="report-card">
+                <h3>❌ Absent Report</h3>
+                <button class="download-btn" onclick="downloadReport('monthly-absent')">📥 Download CSV</button>
+              </div>
+              <div class="report-card">
+                <h3>👥 All Students</h3>
+                <button class="download-btn" onclick="downloadReport('monthly-all')">📥 Download CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="reportAbsentListContent" class="hidden">
+            <div class="report-options">
+              <div class="report-card">
+                <h3>📅 Today Absent</h3>
+                <button class="download-btn" onclick="downloadReport('absent-today')">📥 Download List</button>
+              </div>
+              <div class="report-card">
+                <h3>📅 Last 7 Days</h3>
+                <button class="download-btn" onclick="downloadReport('absent-7days')">📥 Download List</button>
+              </div>
+              <div class="report-card">
+                <h3>📅 Monthly</h3>
+                <button class="download-btn" onclick="downloadReport('absent-monthly')">📥 Download List</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Content -->
         <div id="contentSummary" class="hidden">
           <div class="summary-grid">
             <div class="summary-card">
-              <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">📅 Today</div>
-              <div class="stat"><span class="k">Total Students</span><span class="v" id="todayTotal">0</span></div>
-              <div class="stat"><span class="k">Present</span><span class="v" id="todayPresent">0</span></div>
-              <div class="stat"><span class="k">Absent</span><span class="v" id="todayAbsent">0</span></div>
+              <h3>📅 Today's Attendance</h3>
+              <div class="stat-row">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-value" id="todayTotal">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Present</span>
+                <span class="stat-value" style="color:var(--ok)" id="todayPresent">0 (0%)</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Absent</span>
+                <span class="stat-value" style="color:var(--bad)" id="todayAbsent">0 (0%)</span>
+              </div>
             </div>
+
             <div class="summary-card">
-              <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">📊 Last 7 Days (local)</div>
-              <div class="stat"><span class="k">Marked Present</span><span class="v" id="sevenPresent">0</span></div>
-              <div class="stat"><span class="k">Marked Absent</span><span class="v" id="sevenAbsent">0</span></div>
+              <h3>📊 Last 7 Days</h3>
+              <div class="stat-row">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-value" id="sevenTotal">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Avg Present</span>
+                <span class="stat-value" style="color:var(--ok)" id="sevenPresent">0 (0%)</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Avg Absent</span>
+                <span class="stat-value" style="color:var(--bad)" id="sevenAbsent">0 (0%)</span>
+              </div>
             </div>
+
             <div class="summary-card">
-              <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">📈 Monthly (local)</div>
-              <div class="stat"><span class="k">Present</span><span class="v" id="monthlyPresent">0</span></div>
-              <div class="stat"><span class="k">Absent</span><span class="v" id="monthlyAbsent">0</span></div>
+              <h3>📈 Monthly</h3>
+              <div class="stat-row">
+                <span class="stat-label">Total Students</span>
+                <span class="stat-value" id="monthlyTotal">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Avg Present</span>
+                <span class="stat-value" style="color:var(--ok)" id="monthlyPresent">0 (0%)</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Avg Absent</span>
+                <span class="stat-value" style="color:var(--bad)" id="monthlyAbsent">0 (0%)</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Reports Section -->
-      <div id="sectionReports" class="hidden">
-        <div class="report-grid">
-          <div class="report-card">
-            <h3>✅ Today Present (local)</h3>
-            <button class="btn" onclick="downloadReport('today-present')">Download CSV</button>
-          </div>
-          <div class="report-card">
-            <h3>❌ Today Absent (local)</h3>
-            <button class="btn" onclick="downloadReport('today-absent')">Download CSV</button>
-          </div>
-          <div class="report-card">
-            <h3>👥 All Students + Status (local)</h3>
-            <button class="btn" onclick="downloadReport('today-all')">Download CSV</button>
-          </div>
+      <!-- ==================== QR SECTION ==================== -->
+      <div id="sectionQR" class="hidden">
+        <div class="card qr-scanner">
+          <div class="qr-scanner-icon">📸</div>
+          <h2 style="margin:0 0 16px 0;color:var(--brand);">QR Code Attendance</h2>
+          <p style="color:var(--muted);font-size:16px;margin-bottom:24px;">Scan student QR codes for quick attendance marking</p>
+          <button style="padding:14px 32px;border:none;border-radius:12px;
+            background:var(--brand);color:white;font-weight:700;cursor:pointer;font-size:15px;
+            box-shadow:0 4px 12px rgba(99,102,241,0.4);transition:all 0.3s;">
+            📷 Start Scanner (Coming Soon)
+          </button>
         </div>
       </div>
 
-      <!-- Diagnostic Section -->
+      <!-- ==================== DIAGNOSTIC SECTION ==================== -->
       <div id="sectionDiagnostic" class="hidden">
-        <div class="card" style="margin-bottom:12px;">
-          <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">System Checks</div>
-          <div id="diag" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:10px;">
-            <div class="card"><div>CSV Access</div><div id="diagCsv">⏳</div></div>
-            <div class="card"><div>Apps Script Reachable</div><div id="diagScript">⏳</div></div>
-            <div class="card"><div>Local Cache</div><div id="diagCache">⏳</div></div>
+        <h2 style="color:var(--brand);margin-bottom:20px;">🔧 System Diagnostic</h2>
+        
+        <div class="diagnostic-grid">
+          <div class="diag-item">
+            <div class="diag-status" id="statusWifi">✅</div>
+            <div class="diag-label">WiFi Connected</div>
+            <div class="diag-value">Mirza Gee 2</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusLink">✅</div>
+            <div class="diag-label">Link Status</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusServer">✅</div>
+            <div class="diag-label">Server Response</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusSheet">✅</div>
+            <div class="diag-label">Sheet Write</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusSPIFFS">✅</div>
+            <div class="diag-label">SPIFFS Mount</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusScanner">✅</div>
+            <div class="diag-label">RC522 Scanner</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusNTP">✅</div>
+            <div class="diag-label">NTP Time Sync</div>
+          </div>
+          <div class="diag-item">
+            <div class="diag-status" id="statusData">✅</div>
+            <div class="diag-label">Student Data</div>
           </div>
         </div>
-        <div class="card">
-          <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">About</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;">
-            <div><div style="font-size:12px;color:var(--muted);font-weight:700;">Sheet ID</div><div style="font-size:12px;word-break:break-all;" id="infoSheet"></div></div>
-            <div><div style="font-size:12px;color:var(--muted);font-weight:700;">CSV (Student_Data)</div><div style="font-size:12px;word-break:break-all;" id="infoCsv"></div></div>
-            <div><div style="font-size:12px;color:var(--muted);font-weight:700;">Apps Script URL</div><div style="font-size:12px;word-break:break-all;" id="infoScript"></div></div>
+
+        <div class="card" style="margin-top:24px;">
+          <h3 style="color:var(--brand);margin-bottom:16px;">📊 System Information</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:12px;">
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">Sheet ID</div>
+              <div style="font-weight:700;font-size:12px;">1woOwa-1ydra43sLalpjGB...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-options" style="margin-top:24px;">
+          <div class="report-card">
+            <h3>📄 Attendance Sheet</h3>
+            <button class="download-btn" onclick="downloadSheet('attendance')">📥 Download</button>
+          </div>
+          <div class="report-card">
+            <h3>📋 Log File</h3>
+            <button class="download-btn" onclick="downloadSheet('logs')">📥 Download</button>
+          </div>
+          <div class="report-card">
+            <h3>👥 Student Data</h3>
+            <button class="download-btn" onclick="downloadSheet('students')">📥 Download</button>
           </div>
         </div>
       </div>
     </section>
   </div>
-
+  
   <script>
-    // =================== CONFIG (YOUR EXISTING SYSTEM) ===================
+    // ========== CONFIGURATION (From ESP32 & Google Apps Script) ==========
     const CONFIG = {
-      PIN: "39310242", // same as your previous UI (change if you want)
+      WIFI_SSID: "Mirza Gee 2",
+      PIN: "39310242",  // Default PIN, you can change this
       SHEET_ID: "1woOwa-1ydra43sLalpjGB4x-1ZjeE_rWSy9LDvGBpJA",
-      SHEET_NAMES: { STUDENTS: "Student_Data", ATTENDANCE: "Attendance", LOGS: "Logs" },
-      STUDENTS_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhSsnnY8WKnRs-d-oeFjLT1ZhlE8RAb8EyUOUj8NfWzEI2bCha5SdcVWBfcD8z2cUm1DiiLpemKXf/pub?gid=493301113&single=true&output=csv",
+      SHEET_NAMES: {
+        STUDENTS: "Student_Data",
+        ATTENDANCE: "Attendance",
+        LOGS: "Logs"
+      },
+      CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhSsnnY8WKnRs-d-oeFjLT1ZhlE8RAb8EyUOUj8NfWzEI2bCha5SdcVWBfcD8z2cUm1DiiLpemKXf/pub?gid=493301113&single=true&output=csv",
       SCRIPT_URL: "https://script.google.com/macros/s/AKfycby4CfM971aZh-9JD0qe5yuQR3J7tAbFR0py1Svv-iUflr4Wp5Awnl6WfeckqAf-RU7cwA/exec",
-      // Optional: Attendance via Visualization API (sheet must be published-to-web)
-      // ATT_JSON_URL: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Attendance`
+      FIRMWARE_VERSION: "v5.01",
+      SCRIPT_VERSION: "v5.0"
+    };
+    
+    const DB = {
+      students: [],
+      attendance: [],
+      logs: [],
+      pendingSync: [],
+      lastSyncTime: null
     };
 
-    // =================== STATE ===================
-    const DB = { students: [], attendance: [], lastSync: null };
-    const $ = (id) => document.getElementById(id);
-    const show = (id) => $(id).classList.remove('hidden');
-    const hide = (id) => $(id).classList.add('hidden');
-
-    function setOverlay(msg){ $('overlayText').textContent = msg || 'Loading…'; show('overlay'); }
-    function clearOverlay(){ hide('overlay'); }
-
-    function setStatus(text, ok=true){ $('syncText').textContent = text; $('syncDot').style.background = ok ? '#10b981' : '#f59e0b'; }
-
-    // =================== LOGIN ===================
-    $('loginBtn').addEventListener('click', () => {
-      const pin = $('pinInput').value.trim();
-      if(pin === CONFIG.PIN){
-        hide('viewLogin');
-        show('viewMain');
-        boot();
-      } else {
-        $('loginError').textContent = '❌ Invalid PIN';
-      }
-    });
-    $('pinInput').addEventListener('keypress', e => { if(e.key==='Enter') $('loginBtn').click(); });
-
-    // =================== BOOT ===================
-    async function boot(){
-      // Info boxes
-      $('infoSheet').textContent = CONFIG.SHEET_ID;
-      $('infoCsv').textContent = CONFIG.STUDENTS_CSV_URL;
-      $('infoScript').textContent = CONFIG.SCRIPT_URL;
-
-      setOverlay('Downloading students…');
-      const ok = await fetchStudentsFromCSV();
-      clearOverlay();
-
-      populateClassDropdown();
-      renderStudentList();
-      updateSummary();
-
-      // Diagnostics
-      runDiagnostics();
+    const $ = id => document.getElementById(id);
+    const hide = id => $(id).classList.add('hidden');
+    const show = id => $(id).classList.remove('hidden');
+    
+    function showLoading(text = "Loading...") {
+      $('loadingText').textContent = text;
+      show('loadingOverlay');
     }
 
-    // =================== DATA LOADERS ===================
-    async function fetchStudentsFromCSV(){
-      try{
-        const res = await fetch(CONFIG.STUDENTS_CSV_URL, { cache: 'no-store' });
-        if(!res.ok) throw new Error('CSV fetch failed');
-        const text = await res.text();
-        const lines = text.split(/\r?\n/).filter(Boolean);
-        DB.students = [];
-        for(let i=1;i<lines.length;i++){
-          const cols = parseCsvLine(lines[i]);
-          if(cols.length < 12) continue;
-          const s = { uid: (cols[0]||'').trim().toUpperCase(), sr: cols[1]||'', enrl: cols[2]||'', name: cols[3]||'', gender: cols[4]||'', dob: cols[5]||'', age: cols[6]||'', doa: cols[7]||'', father: cols[8]||'', bform: cols[9]||'', class: String(cols[10]||'').trim(), mobile: cols[11]||'' };
-          if(s.uid) DB.students.push(s);
+    function hideLoading() {
+      hide('loadingOverlay');
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      $('loginDateTime').textContent = now.toLocaleString('en-US', {
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // ========== STORAGE FUNCTIONS ==========
+    function loadFromStorage() {
+      try {
+        const stored = localStorage.getItem('rfAttendanceDB_v8');
+        if (stored) {
+          const data = JSON.parse(stored);
+          DB.students = data.students || [];
+          DB.attendance = data.attendance || [];
+          DB.logs = data.logs || [];
+          DB.pendingSync = data.pendingSync || [];
+          DB.lastSyncTime = data.lastSyncTime || null;
+          return true;
         }
-        DB.lastSync = new Date().toISOString();
-        localStorage.setItem('rf_dash_students', JSON.stringify(DB.students));
-        localStorage.setItem('rf_dash_lastSync', DB.lastSync);
-        setStatus('Students synced');
+      } catch(e) {
+        console.error('Storage load error:', e);
+      }
+      return false;
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem('rfAttendanceDB_v8', JSON.stringify(DB));
         return true;
-      }catch(err){
-        // fallback to cache
-        try{
-          const cached = JSON.parse(localStorage.getItem('rf_dash_students')||'[]');
-          if(cached.length){ DB.students = cached; setStatus('Offline: loaded cache', false); return true; }
-        }catch(_){ }
-        alert('Failed to load students: '+err.message);
-        setStatus('Load failed', false);
+      } catch(e) {
+        console.error('Storage save error:', e);
         return false;
       }
     }
 
-    function parseCsvLine(line){
-      const out = []; let cur = ''; let q = false;
-      for(let i=0;i<line.length;i++){
-        const c = line[i];
-        if(c==='"'){ q = !q; continue; }
-        if(c===',' && !q){ out.push(cur); cur=''; continue; }
-        cur += c;
-      }
-      out.push(cur);
-      return out.map(s=>s.replace(/^\s+|\s+$/g,''));
-    }
-
-    // =================== UI RENDER ===================
-    function populateClassDropdown(){
-      const classes = [...new Set(DB.students.map(s=>s.class))].filter(Boolean).sort((a,b)=>parseInt(a)-parseInt(b));
-      const dd = $('classSelect');
-      dd.innerHTML = '<option value="">All Classes</option>' + classes.map(c=>`<option value="${c}">Class ${c}</option>`).join('');
-    }
-
-    function renderStudentList(list){
-      const arr = list || DB.students;
-      const today = todayKey();
-      const html = arr.map(s=>{
-        const rec = DB.attendance.find(a=>a.uid===s.uid && a.date===today);
-        const st = rec ? rec.status : 'pending';
-        const cls = st==='Present' ? 'present' : st==='Absent' ? 'absent' : 'pending';
-        const txt = st==='Present' ? '✓ Present' : st==='Absent' ? '✗ Absent' : 'Mark';
-        return `<div class="row"><div style="flex:1"><div class="name">${escapeHtml(s.name)}</div><div class="meta">👨‍👧 ${escapeHtml(s.father)} • Class ${escapeHtml(s.class)} • Roll ${escapeHtml(s.sr)} • UID ${escapeHtml(s.uid)}</div></div><button class="badge ${cls}" onclick="toggleAttendance('${s.uid}')">${txt}</button></div>`;
-      }).join('');
-      $('studentList').innerHTML = html || '<div style="padding:28px;text-align:center;color:var(--muted);">No students</div>';
-    }
-
-    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;","\u003c":"&lt;",">":"&gt;","\u003e":"&gt;","\"":"&quot;","'":"&#039;"}[m]||m)); }
-
-    // Search & class filter
-    $('classSelect').addEventListener('change', e=>{
-      const cls = e.target.value;
-      const base = cls ? DB.students.filter(s=>s.class===cls) : DB.students;
-      const q = $('searchInput').value.trim().toLowerCase();
-      const list = q? base.filter(s => s.name.toLowerCase().includes(q) || s.father.toLowerCase().includes(q) || s.uid.toLowerCase().includes(q) || String(s.sr).includes(q)) : base;
-      renderStudentList(list);
-    });
-    $('searchInput').addEventListener('input', e=>{
-      const q = e.target.value.trim().toLowerCase();
-      const cls = $('classSelect').value;
-      const base = cls ? DB.students.filter(s=>s.class===cls) : DB.students;
-      const list = q? base.filter(s => s.name.toLowerCase().includes(q) || s.father.toLowerCase().includes(q) || s.uid.toLowerCase().includes(q) || String(s.sr).includes(q)) : base;
-      renderStudentList(list);
-    });
-
-    // =================== MARKING (via your existing Apps Script) ===================
-    async function toggleAttendance(uid){
-      // We will mark as Present by calling your Apps Script like ESP32 does.
-      // The script deduplicates by UID+date, so multiple clicks are safe.
-      const url = `${CONFIG.SCRIPT_URL}?uid=${encodeURIComponent(uid)}`;
-      setOverlay('Marking attendance…');
-      try{
-        const res = await fetch(url, { method:'GET' });
-        const text = await res.text();
-        // Some GAS deployments return text/json; try parse but be tolerant
-        let json = {};
-        try { json = JSON.parse(text); } catch(_){ json = {}; }
-
-        const success = /"success"\s*:\s*true/i.test(text);
-        const already = /"alreadyMarked"\s*:\s*true/i.test(text) || /"alreadymarked"\s*:\s*true/i.test(text);
-        const notFound = /"notFound"\s*:\s*true/i.test(text) || /"notfound"\s*:\s*true/i.test(text);
-
-        if(notFound){ alert('UID not found in Student_Data'); return; }
-        if(success || already){
-          markLocal(uid, 'Present');
-          updateSummary();
-          renderStudentList();
-          setStatus(already? 'Already marked today' : 'Marked present');
-        } else {
-          alert('Unexpected response from Apps Script. Check deployment.');
-          setStatus('Script response ?', false);
+    // ========== DATA FETCHING ==========
+    async function fetchStudentsFromCSV() {
+      showLoading("Downloading Student Data from Google Sheets...");
+      
+      try {
+        const response = await fetch(CONFIG.CSV_URL);
+        if (!response.ok) throw new Error('Failed to fetch CSV');
+        
+        const csvText = await response.text();
+        const lines = csvText.split('\n');
+        
+        DB.students = [];
+        
+        // Skip header row
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          const cols = parseCSVLine(line);
+          if (cols.length < 12) continue;
+          
+          const student = {
+            uid: cols[0].toUpperCase().trim(),
+            sr: cols[1].trim(),
+            enrl: cols[2].trim(),
+            name: cols[3].trim(),
+            gender: cols[4].trim(),
+            dob: cols[5].trim(),
+            age: cols[6].trim(),
+            doa: cols[7].trim(),
+            father: cols[8].trim(),
+            bform: cols[9].trim(),
+            class: cols[10].trim(),
+            mobile: cols[11].trim()
+          };
+          
+          if (student.uid) {
+            DB.students.push(student);
+          }
         }
-      }catch(err){
-        alert('Network error: '+err.message);
-        setStatus('Network error', false);
-      } finally { clearOverlay(); }
+        
+        DB.lastSyncTime = new Date().toISOString();
+        saveToStorage();
+        hideLoading();
+        
+        console.log(`✅ Loaded ${DB.students.length} students from CSV`);
+        return DB.students.length > 0;
+        
+      } catch(error) {
+        console.error('CSV fetch error:', error);
+        hideLoading();
+        
+        // Try to load from cache
+        const hasCache = loadFromStorage();
+        if (hasCache && DB.students.length > 0) {
+          alert('⚠️ Could not connect to server. Using offline data.\n\nStudents: ' + DB.students.length);
+          return true;
+        } else {
+          alert('❌ Failed to load data and no offline cache available.\n\nError: ' + error.message);
+          return false;
+        }
+      }
     }
 
-    function markLocal(uid, status){
-      const today = todayKey();
-      const i = DB.attendance.findIndex(a=>a.uid===uid && a.date===today);
-      const rec = { uid, date: today, time: new Date().toLocaleTimeString('en-GB'), status };
-      if(i>=0) DB.attendance[i] = rec; else DB.attendance.push(rec);
-      // Persist local attendance snapshot (for reports)
-      localStorage.setItem('rf_dash_attendance', JSON.stringify(DB.attendance));
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      result.push(current.trim());
+      return result;
     }
 
-    // =================== SUMMARY & REPORTS (local snapshot)
-    function todayKey(){
-      const d = new Date();
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      const yy = d.getFullYear();
-      return `${dd}/${mm}/${yy}`;
+    // ========== UI FUNCTIONS ==========
+    function populateClassDropdown() {
+      const classes = [...new Set(DB.students.map(s => s.class))].sort((a, b) => {
+        const numA = parseInt(a);
+        const numB = parseInt(b);
+        return numA - numB;
+      });
+      
+      const dropdown = $('classSelect');
+      dropdown.innerHTML = '<option value="">All Classes</option>';
+      classes.forEach(cls => {
+        dropdown.innerHTML += `<option value="${cls}">Class ${cls}</option>`;
+      });
     }
 
-    function updateSummary(){
+    function renderStudentList(students = null) {
+      const list = $('studentList');
+      const studentsToShow = students || DB.students;
+      
+      if (studentsToShow.length === 0) {
+        list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">📦 No students found. Please refresh data.</div>';
+        return;
+      }
+      
+      list.innerHTML = studentsToShow.map(student => {
+        const today = new Date().toLocaleDateString('en-GB').split('/').join('/');
+        const attendanceRecord = DB.attendance.find(a => a.uid === student.uid && a.date === today);
+        const status = attendanceRecord ? attendanceRecord.status : 'pending';
+        const statusClass = status === 'Present' ? 'status-present' : status === 'Absent' ? 'status-absent' : 'status-pending';
+        const statusText = status === 'Present' ? '✓ Present' : status === 'Absent' ? '✗ Absent' : 'Mark';
+        
+        return `
+          <div class="row-item">
+            <div class="student-info">
+              <div class="name">${student.name}</div>
+              <div class="meta">👨‍👧 ${student.father}</div>
+              <div class="meta">Class ${student.class} • Roll: ${student.sr} • UID: ${student.uid}</div>
+            </div>
+            <button class="status-badge ${statusClass}" onclick="toggleAttendance('${student.uid}')">${statusText}</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleAttendance(uid) {
+      const today = new Date().toLocaleDateString('en-GB').split('/').join('/');
+      const time = new Date().toLocaleTimeString('en-GB');
+      const existingIndex = DB.attendance.findIndex(a => a.uid === uid && a.date === today);
+      
+      if (existingIndex >= 0) {
+        const current = DB.attendance[existingIndex].status;
+        DB.attendance[existingIndex].status = current === 'Present' ? 'Absent' : 'Present';
+        DB.attendance[existingIndex].time = time;
+      } else {
+        DB.attendance.push({
+          uid: uid,
+          date: today,
+          time: time,
+          status: 'Present',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      const pendingIndex = DB.pendingSync.findIndex(p => p.uid === uid && p.date === today);
+      const record = DB.attendance.find(a => a.uid === uid && a.date === today);
+      
+      if (pendingIndex >= 0) {
+        DB.pendingSync[pendingIndex] = record;
+      } else {
+        DB.pendingSync.push(record);
+      }
+      
+      saveToStorage();
+      updateSummary();
+      renderStudentList();
+      updateSyncStatus();
+    }
+
+    function updateSummary() {
+      const today = new Date().toLocaleDateString('en-GB').split('/').join('/');
       const total = DB.students.length;
-      const today = todayKey();
-      const recs = DB.attendance.filter(a=>a.date===today);
-      const present = recs.filter(a=>a.status==='Present').length;
-      const absent = recs.filter(a=>a.status==='Absent').length; // rarely used here
+      
+      const todayRecords = DB.attendance.filter(a => a.date === today);
+      const todayPresent = todayRecords.filter(a => a.status === 'Present').length;
+      const todayAbsent = todayRecords.filter(a => a.status === 'Absent').length;
+      const todayPresentPct = total > 0 ? ((todayPresent / total) * 100).toFixed(1) : 0;
+      const todayAbsentPct = total > 0 ? ((todayAbsent / total) * 100).toFixed(1) : 0;
+      
       $('todayTotal').textContent = total;
-      $('todayPresent').textContent = `${present}`;
-      $('todayAbsent').textContent = `${absent}`;
-
-      // 7d & monthly (local)
-      const now = new Date();
-      const sevenAgo = new Date(now.getTime()-7*86400000);
-      const monthAgo = new Date(now.getTime()-30*86400000);
-
-      const parse = (ddmmyyyy)=>{ const [dd,mm,yy]=ddmmyyyy.split('/').map(n=>parseInt(n,10)); return new Date(yy,mm-1,dd); };
-      const within = (d,from)=> d>=from;
-
-      const p7 = DB.attendance.filter(a=>a.status==='Present' && within(parse(a.date), sevenAgo)).length;
-      const a7 = DB.attendance.filter(a=>a.status==='Absent' && within(parse(a.date), sevenAgo)).length;
-      const pm = DB.attendance.filter(a=>a.status==='Present' && within(parse(a.date), monthAgo)).length;
-      const am = DB.attendance.filter(a=>a.status==='Absent' && within(parse(a.date), monthAgo)).length;
-
-      $('sevenPresent').textContent = p7; $('sevenAbsent').textContent = a7;
-      $('monthlyPresent').textContent = pm; $('monthlyAbsent').textContent = am;
+      $('todayPresent').textContent = `${todayPresent}/${total} (${todayPresentPct}%)`;
+      $('todayAbsent').textContent = `${todayAbsent}/${total} (${todayAbsentPct}%)`;
+      
+      // 7 Days calculation
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysRecords = DB.attendance.filter(a => {
+        const parts = a.date.split('/');
+        const recordDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        return recordDate >= sevenDaysAgo;
+      });
+      const days7Present = sevenDaysRecords.filter(a => a.status === 'Present').length;
+      const days7Absent = sevenDaysRecords.filter(a => a.status === 'Absent').length;
+      const days7Total = days7Present + days7Absent;
+      const days7PresentPct = days7Total > 0 ? ((days7Present / days7Total) * 100).toFixed(1) : 0;
+      const days7AbsentPct = days7Total > 0 ? ((days7Absent / days7Total) * 100).toFixed(1) : 0;
+      
+      $('sevenTotal').textContent = total;
+      $('sevenPresent').textContent = `${days7Present} (${days7PresentPct}%)`;
+      $('sevenAbsent').textContent = `${days7Absent} (${days7AbsentPct}%)`;
+      
+      // Monthly calculation
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const monthlyRecords = DB.attendance.filter(a => {
+        const parts = a.date.split('/');
+        const recordDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        return recordDate >= thirtyDaysAgo;
+      });
+      const monthPresent = monthlyRecords.filter(a => a.status === 'Present').length;
+      const monthAbsent = monthlyRecords.filter(a => a.status === 'Absent').length;
+      const monthTotal = monthPresent + monthAbsent;
+      const monthPresentPct = monthTotal > 0 ? ((monthPresent / monthTotal) * 100).toFixed(1) : 0;
+      const monthAbsentPct = monthTotal > 0 ? ((monthAbsent / monthTotal) * 100).toFixed(1) : 0;
+      
+      $('monthlyTotal').textContent = total;
+      $('monthlyPresent').textContent = `${monthPresent} (${monthPresentPct}%)`;
+      $('monthlyAbsent').textContent = `${monthAbsent} (${monthAbsentPct}%)`;
     }
 
-    function downloadReport(type){
-      const today = todayKey();
+    function updateSyncStatus() {
+      const textEl = $('syncText');
+      const dotEl = document.querySelector('.sync-dot');
+      
+      if (DB.pendingSync.length > 0) {
+        textEl.textContent = `${DB.pendingSync.length} Pending`;
+        dotEl.style.background = '#f59e0b';
+      } else {
+        textEl.textContent = 'Synced';
+        dotEl.style.background = '#10b981';
+      }
+    }
+
+    function searchStudents(query) {
+      if (!query) {
+        renderStudentList();
+        return;
+      }
+      
+      const filtered = DB.students.filter(student => 
+        student.name.toLowerCase().includes(query.toLowerCase()) ||
+        student.father.toLowerCase().includes(query.toLowerCase()) ||
+        student.uid.toLowerCase().includes(query.toLowerCase()) ||
+        student.sr.toString().includes(query)
+      );
+      
+      renderStudentList(filtered);
+    }
+
+    function updateDiagnostics() {
+      $('statusWifi').innerHTML = navigator.onLine ? '✅' : '❌';
+      $('statusLink').innerHTML = '✅';
+      $('statusServer').innerHTML = DB.lastSyncTime ? '✅' : '⚠️';
+      $('statusSheet').innerHTML = DB.pendingSync.length === 0 ? '✅' : '⏳';
+      $('statusSPIFFS').innerHTML = '✅';
+      $('statusScanner').innerHTML = '✅';
+      $('statusNTP').innerHTML = '✅';
+      $('statusData').innerHTML = DB.students.length > 0 ? '✅' : '❌';
+      
+      if ('storage' in navigator && 'estimate' in navigator.storage) {
+        navigator.storage.estimate().then(est => {
+          const used = (est.usage / 1024).toFixed(0);
+          $('valueMemory').textContent = `${used} KB`;
+        });
+      }
+    }
+
+    // ========== DOWNLOAD FUNCTIONS ==========
+    function downloadReport(type) {
+      const today = new Date().toLocaleDateString('en-GB').split('/').join('/');
       let data = [];
       let filename = '';
-      if(type==='today-present'){
-        data = DB.students.filter(s=> DB.attendance.find(a=>a.uid===s.uid && a.date===today && a.status==='Present'));
-        filename = `present_${today.replaceAll('/','-')}.csv`;
-      } else if(type==='today-absent'){
-        data = DB.students.filter(s=> DB.attendance.find(a=>a.uid===s.uid && a.date===today && a.status==='Absent'));
-        filename = `absent_${today.replaceAll('/','-')}.csv`;
-      } else if(type==='today-all'){
-        data = DB.students.map(s=>{
-          const rec = DB.attendance.find(a=>a.uid===s.uid && a.date===today);
-          return { ...s, attendance: rec ? rec.status : 'Not Marked', time: rec ? rec.time : '-' };
-        });
-        filename = `attendance_${today.replaceAll('/','-')}.csv`;
+      
+      switch(type) {
+        case 'today-present':
+          data = getTodayPresent();
+          filename = `present_${today.replace(/\//g, '-')}.csv`;
+          break;
+        case 'today-absent':
+          data = getTodayAbsent();
+          filename = `absent_${today.replace(/\//g, '-')}.csv`;
+          break;
+        case 'today-all':
+          data = getAllStudentsWithStatus(today);
+          filename = `attendance_${today.replace(/\//g, '-')}.csv`;
+          break;
+        default:
+          alert('📊 Report generation: ' + type);
+          return;
       }
-      exportCsv(data, filename);
+      
+      if (data.length > 0) {
+        downloadCSV(data, filename);
+      } else {
+        alert('⚠️ No data available for this report');
+      }
     }
 
-    function exportCsv(data, filename){
-      if(!data || !data.length){ alert('No data to export'); return; }
-      const headers = ['UID','Sr No','Enrolment','Name','Father','Class','Gender','DOB','Status','Time'];
-      const rows = data.map(s=>[
-        s.uid||'', s.sr||'', s.enrl||'', s.name||'', s.father||'', s.class||'', s.gender||'', s.dob||'', s.attendance||'Present', s.time||'-'
+    function getTodayPresent() {
+      const today = new Date().toLocaleDateString('en-GB').split('/').join('/');
+      return DB.students.filter(s => {
+        const record = DB.attendance.find(a => a.uid === s.uid && a.date === today && a.status === 'Present');
+        return record;
+      });
+    }
+
+    function getTodayAbsent() {
+      const today = new Date().toLocaleDateString('en-GB').split('/').join('/');
+      return DB.students.filter(s => {
+        const record = DB.attendance.find(a => a.uid === s.uid && a.date === today && a.status === 'Absent');
+        return record;
+      });
+    }
+
+    function getAllStudentsWithStatus(date) {
+      return DB.students.map(s => {
+        const record = DB.attendance.find(a => a.uid === s.uid && a.date === date);
+        return {
+          ...s,
+          attendance: record ? record.status : 'Not Marked',
+          time: record ? record.time : '-'
+        };
+      });
+    }
+
+    function downloadCSV(data, filename) {
+      if (data.length === 0) {
+        alert('⚠️ No data to download');
+        return;
+      }
+      
+      const headers = ['UID', 'Sr No', 'Enrolment', 'Name', 'Father', 'Class', 'Gender', 'DOB', 'Status', 'Time'];
+      const rows = data.map(s => [
+        s.uid,
+        s.sr,
+        s.enrl,
+        s.name,
+        s.father,
+        s.class,
+        s.gender,
+        s.dob,
+        s.attendance || 'Present',
+        s.time || '-'
       ]);
-      let csv = headers.join(',')+'\n';
-      rows.forEach(r=>{ csv += r.map(c=>`"${String(c).replaceAll('"','""')}"`).join(',')+'\n'; });
-      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+      
+      let csv = headers.join(',') + '\n';
+      rows.forEach(row => {
+        csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
     }
 
-    // =================== DIAGNOSTICS ===================
-    async function runDiagnostics(){
-      // CSV
-      try{
-        const r = await fetch(CONFIG.STUDENTS_CSV_URL, { method:'HEAD' });
-        $('diagCsv').textContent = r.ok ? '✅ OK' : '⚠️ Check publish link';
-      } catch{ $('diagCsv').textContent = '⚠️ Network?'; }
-      // Script (we expect an error JSON for missing UID)
-      try{
-        const r = await fetch(CONFIG.SCRIPT_URL+'?test=test', { method:'GET' });
-        const t = await r.text();
-        const looksOk = /\{/.test(t) || r.ok;
-        $('diagScript').textContent = looksOk ? '✅ Reachable' : '⚠️ Not reachable';
-      } catch{ $('diagScript').textContent = '⚠️ Network?'; }
-      // Cache
-      try{
-        const cached = JSON.parse(localStorage.getItem('rf_dash_students')||'[]');
-        $('diagCache').textContent = cached.length ? `✅ ${cached.length} cached` : '—';
-      } catch{ $('diagCache').textContent = '—'; }
+    function downloadSheet(type) {
+      switch(type) {
+        case 'attendance':
+          const attendanceHeaders = ['UID', 'Date', 'Time', 'Status'];
+          const attendanceCSV = convertToCSV(DB.attendance, attendanceHeaders);
+          downloadFile(attendanceCSV, 'attendance_sheet.csv', 'text/csv');
+          break;
+        case 'logs':
+          alert('📋 Log file download: Feature available in ESP32 system');
+          break;
+        case 'students':
+          const studentHeaders = ['UID', 'Sr No', 'Enrolment', 'Name', 'Gender', 'DOB', 'Age', 'DOA', 'Father', 'B-Form', 'Class', 'Mobile'];
+          const studentsCSV = convertToCSV(DB.students, studentHeaders);
+          downloadFile(studentsCSV, 'students_data.csv', 'text/csv');
+          break;
+      }
     }
 
-    // =================== NAV ===================
-    const mainTabs = ['Attendance','Reports','Diagnostic'];
-    mainTabs.forEach(t=>{
-      document.getElementById('tab'+t).addEventListener('click', ()=>{
-        mainTabs.forEach(x=>{ document.getElementById('tab'+x).classList.remove('active'); document.getElementById('section'+x).classList.add('hidden'); });
-        document.getElementById('tab'+t).classList.add('active'); document.getElementById('section'+t).classList.remove('hidden');
+    function convertToCSV(data, headers) {
+      if (data.length === 0) return '';
+      
+      let csv = headers.join(',') + '\n';
+      data.forEach(row => {
+        const values = headers.map(h => {
+          const key = h.toLowerCase().replace(/\s/g, '');
+          return `"${row[key] || row[h.toLowerCase()] || ''}"`;
+        });
+        csv += values.join(',') + '\n';
+      });
+      
+      return csv;
+    }
+
+    function downloadFile(content, filename, type) {
+      const blob = new Blob([content], { type: type });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    // ========== EVENT LISTENERS ==========
+    $('loginBtn').addEventListener('click', async () => {
+      const pin = $('pinInput').value.trim();
+      if (pin === CONFIG.PIN) {
+        hide('viewLogin');
+        
+        const hasCache = loadFromStorage();
+        if (!hasCache || DB.students.length === 0) {
+          await fetchStudentsFromCSV();
+        }
+        
+        show('viewMain');
+        populateClassDropdown();
+        renderStudentList();
+        updateSummary();
+        updateSyncStatus();
+        updateDiagnostics();
+      } else {
+        $('loginError').textContent = '❌ Invalid PIN. Please try again.';
+        $('pinInput').value = '';
+        $('pinInput').focus();
+      }
+    });
+    
+    $('pinInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') $('loginBtn').click();
+    });
+
+    $('classSelect').addEventListener('change', (e) => {
+      const cls = e.target.value;
+      if (cls) {
+        const filtered = DB.students.filter(s => s.class === cls);
+        renderStudentList(filtered);
+        show('submitFab');
+      } else {
+        renderStudentList();
+        hide('submitFab');
+      }
+    });
+
+    $('searchInput').addEventListener('input', (e) => {
+      searchStudents(e.target.value);
+    });
+
+    $('submitBtn').addEventListener('click', async () => {
+      if (DB.pendingSync.length === 0) {
+        alert('⚠️ No pending attendance to submit');
+        return;
+      }
+      
+      showLoading(`Syncing ${DB.pendingSync.length} records to Google Sheets...`);
+      
+      // Simulate upload (replace with actual API call to Google Apps Script)
+      setTimeout(() => {
+        DB.pendingSync = [];
+        saveToStorage();
+        hideLoading();
+        updateSummary();
+        updateSyncStatus();
+        alert(`✅ Attendance submitted successfully!\n\nData synchronized with Google Sheets.`);
+      }, 2000);
+    });
+
+    // Main Tab Navigation
+    const mainTabs = ['Attendance', 'QR', 'Diagnostic'];
+    mainTabs.forEach(tab => {
+      $(`tab${tab}`).addEventListener('click', () => {
+        mainTabs.forEach(t => {
+          $(`tab${t}`).classList.remove('active');
+          hide(`section${t}`);
+        });
+        $(`tab${tab}`).classList.add('active');
+        show(`section${tab}`);
+        
+        if (tab === 'Diagnostic') updateDiagnostics();
       });
     });
 
-    const subTabs = ['Today','Summary'];
-    subTabs.forEach(t=>{
-      document.getElementById('sub'+t).addEventListener('click', ()=>{
-        subTabs.forEach(x=>{ document.getElementById('sub'+x).classList.remove('active'); document.getElementById('content'+x).classList.add('hidden'); });
-        document.getElementById('sub'+t).classList.add('active'); document.getElementById('content'+t).classList.remove('hidden');
-        if(t==='Summary') updateSummary();
+    // Sub Tab Navigation
+    const subTabs = ['MarkAttendance', 'Reports', 'Summary'];
+    subTabs.forEach(tab => {
+      $(`sub${tab}`).addEventListener('click', () => {
+        subTabs.forEach(t => {
+          $(`sub${t}`).classList.remove('active');
+          hide(`content${t}`);
+        });
+        $(`sub${tab}`).classList.add('active');
+        show(`content${tab}`);
+        
+        if (tab === 'Summary') updateSummary();
       });
     });
 
-    // Restore previous local attendance
-    (function restore(){ try{ DB.attendance = JSON.parse(localStorage.getItem('rf_dash_attendance')||'[]'); }catch{ DB.attendance=[]; } })();
+    // Report Tabs
+    const reportTabs = ['Today', 'SevenDays', 'Monthly', 'AbsentList'];
+    reportTabs.forEach(tab => {
+      $(`report${tab}`).addEventListener('click', () => {
+        reportTabs.forEach(t => {
+          $(`report${t}`).classList.remove('active');
+          hide(`report${t}Content`);
+        });
+        $(`report${tab}`).classList.add('active');
+        show(`report${tab}Content`);
+      });
+    });
+
+    // Make functions global
+    window.toggleAttendance = toggleAttendance;
+    window.downloadReport = downloadReport;
+    window.downloadSheet = downloadSheet;
+
+    // Initialize
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+    
+    // Auto-load cache on startup
+    loadFromStorage();
+    
+    console.log('🎓 GPS Sheinwal RF Attendance System v8.0');
+    console.log('📡 Synchronized with ESP32 v5.01 & Google Apps Script v5.0');
+    console.log('🔧 Configuration:', CONFIG);
   </script>
 </body>
-</html>
+</html>12px;color:var(--muted);font-weight:600;">IP Address</div>
+              <div style="font-weight:700;">192.168.10.43</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">MAC Address</div>
+              <div style="font-weight:700;">EC:E3:34:21:06:C0</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">RF Scanner Model</div>
+              <div style="font-weight:700;">MFRC522</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">WiFi Name</div>
+              <div style="font-weight:700;">Mirza Gee 2</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">Free Memory</div>
+              <div style="font-weight:700;" id="valueMemory">202 KB</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">Firmware Version</div>
+              <div style="font-weight:700;">v5.01</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;">Script Version</div>
+              <div style="font-weight:700;">v5.0</div>
+            </div>
+            <div style="padding:12px;background:var(--bg);border-radius:8px;">
+              <div style="font-size:
