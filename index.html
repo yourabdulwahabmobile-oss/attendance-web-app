@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPS Sheinwal — RF Attendance (Integrated)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --brand:#6366f1; --brand-2:#764ba2; --brand-hover:#4f46e5; --brand-soft:#eef2ff;
+      --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --border:#e2e8f0;
+      --shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+      --gradient: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    html,body{ min-height:100%; background:var(--bg); color:var(--text); font-family:'Inter',system-ui,-apple-system,sans-serif; line-height:1.6; }
+    header{ position:sticky; top:0; z-index:30; background:var(--gradient); color:#fff; text-align:center; padding:20px 16px; box-shadow:var(--shadow-lg); }
+    .school-name{ font-size:clamp(20px, 5vw, 28px); font-weight:800; margin-bottom:6px; text-shadow:0 2px 4px rgba(0,0,0,0.15); letter-spacing:-0.5px; }
+    .bar h1{ font-size:clamp(14px, 4vw, 18px); margin:0; font-weight:600; opacity:0.95; }
+    .wrap{ max-width:1200px; margin:0 auto; padding:clamp(12px,3vw,24px); }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:20px; padding:clamp(16px,3vw,24px); box-shadow:var(--shadow); }
+    .main-tabs{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:16px; }
+    .main-tabs button{ padding:14px; border-radius:14px; border:2px solid transparent; background:var(--card); cursor:pointer; font-weight:700; font-size:15px; transition:all .2s; box-shadow:var(--shadow); }
+    .main-tabs button.active{ background:var(--gradient); color:#fff; }
+    .sub-tabs{ display:flex; gap:8px; margin:12px 0; flex-wrap:wrap; border-bottom:2px solid var(--border); padding-bottom:8px; }
+    .sub-tabs button{ padding:10px 16px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:14px; color:var(--muted); border-bottom:3px solid transparent; }
+    .sub-tabs button.active{ color:var(--brand); border-bottom-color:var(--brand); }
+    .toolbar{ display:flex; gap:12px; align-items:flex-end; margin:14px 0; flex-wrap:wrap; }
+    .toolbar > div{ flex:1; min-width:220px; }
+    .label{ font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:.5px; }
+    input,select{ padding:12px 14px; border-radius:12px; border:2px solid var(--border); font-size:15px; width:100%; transition:all .15s; background:var(--card); }
+    input:focus,select:focus{ outline:none; border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-soft); }
+    .list{ background:var(--card); border:2px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); max-height:520px; overflow-y:auto; }
+    .row{ display:flex; gap:12px; justify-content:space-between; align-items:center; padding:14px 16px; border-top:1px solid var(--border); }
+    .row:first-child{ border-top:none; }
+    .row:hover{ background:var(--brand-soft); }
+    .name{ font-weight:800; font-size:15px; }
+    .meta{ font-size:12px; color:var(--muted); font-weight:600; }
+    .badge{ padding:8px 14px; border-radius:18px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; border:none; cursor:pointer; }
+    .present{ background:#d1fae5; color:#065f46; }
+    .absent{ background:#fee2e2; color:#991b1b; }
+    .pending{ background:#fef3c7; color:#92400e; }
+    .fab{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:40; }
+    .fab button{ min-width:240px; padding:14px 26px; border-radius:999px; font-size:15px; font-weight:800; background:var(--gradient); color:#fff; border:none; box-shadow:0 12px 30px -6px rgba(99,102,241,.5); cursor:pointer; }
+    .hidden{ display:none !important; }
+    .report-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin:12px 0; }
+    .report-card{ background:linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border:2px solid var(--border); border-radius:12px; padding:18px; text-align:center; }
+    .report-card h3{ margin:0 0 10px 0; color:var(--brand); font-size:16px; }
+    .btn{ width:100%; padding:10px; border:none; border-radius:8px; background:var(--brand); color:white; font-weight:700; cursor:pointer; font-size:14px; }
+    .btn:hover{ background:var(--brand-hover); }
+    .summary-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:12px; margin:12px 0; }
+    .summary-card{ background:linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border:2px solid var(--border); border-radius:16px; padding:18px; }
+    .stat{ display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
+    .stat:last-child{ border-bottom:none; }
+    .stat .k{ font-weight:700; }
+    .stat .v{ font-weight:800; color:var(--brand); }
+    .login{ text-align:center; max-width:440px; margin:50px auto; }
+    .login .icon{ width:80px; height:80px; margin:0 auto 16px; background:var(--gradient); border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:38px; color:#fff; box-shadow:var(--shadow-lg); }
+    .statusbar{ position:absolute; top:14px; right:14px; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; font-size:12px; display:flex; align-items:center; gap:8px; backdrop-filter: blur(8px); }
+    .dot{ width:8px; height:8px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.75); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; z-index:100; }
+    .spinner{ width:60px; height:60px; border:4px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite; }
+    @keyframes spin { to{ transform:rotate(360deg) } }
+    .overlay .t{ color:#fff; font-weight:800; }
+    @media (max-width:768px){ .main-tabs{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <!-- LOADING -->
+  <div id="overlay" class="overlay hidden">
+    <div class="spinner"></div>
+    <div id="overlayText" class="t">Loading…</div>
+  </div>
+
+  <header>
+    <div class="statusbar"><div class="dot" id="syncDot"></div><span id="syncText">Checking…</span></div>
+    <div class="school-name">🎓 GPS Sheinwal (Shamaskay)</div>
+    <div class="bar"><h1>RF Attendance Dashboard — Integrated</h1></div>
+  </header>
+
+  <div class="wrap">
+    <!-- LOGIN -->
+    <section id="viewLogin" class="card login">
+      <div class="icon">🔐</div>
+      <div style="font-size:26px;font-weight:800;margin-bottom:6px;">Secure Login</div>
+      <div style="color:var(--muted);margin-bottom:14px;font-size:14px;">Enter your PIN to access</div>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="20" placeholder="Enter PIN" style="width:86%;padding:14px 18px;text-align:center;letter-spacing:3px;margin:10px auto 8px;font-size:18px;border:2px solid var(--border);border-radius:12px;">
+      <button id="loginBtn" class="btn" style="max-width:86%;margin:8px auto 0;">Login →</button>
+      <div id="loginError" style="margin-top:10px;color:var(--bad);font-weight:700;font-size:13px;"></div>
+    </section>
+
+    <!-- MAIN -->
+    <section id="viewMain" class="hidden">
+      <div class="main-tabs">
+        <button id="tabAttendance" class="active">📋 Attendance</button>
+        <button id="tabReports">📑 Reports</button>
+        <button id="tabDiagnostic">🔧 Diagnostic</button>
+      </div>
+
+      <!-- Attendance Section -->
+      <div id="sectionAttendance">
+        <div class="sub-tabs">
+          <button id="subToday" class="active">Today</button>
+          <button id="subSummary">Summary</button>
+        </div>
+
+        <!-- Today list -->
+        <div id="contentToday">
+          <div class="toolbar">
+            <div>
+              <span class="label">📚 Select Class</span>
+              <select id="classSelect"><option value="">All Classes</option></select>
+            </div>
+            <div>
+              <span class="label">🔍 Search</span>
+              <input id="searchInput" placeholder="Search by name, father, UID, roll…" />
+            </div>
+          </div>
+          <div id="studentList" class="list"></div>
+        </div>
+
+        <!-- Summary -->
+        <div id="contentSummary" class="hidden">
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">📅 Today</div>
+              <div class="stat"><span class="k">Total Students</span><span class="v" id="todayTotal">0</span></div>
+              <div class="stat"><span class="k">Present</span><span class="v" id="todayPresent">0</span></div>
+              <div class="stat"><span class="k">Absent</span><span class="v" id="todayAbsent">0</span></div>
+            </div>
+            <div class="summary-card">
+              <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">📊 Last 7 Days (local)</div>
+              <div class="stat"><span class="k">Marked Present</span><span class="v" id="sevenPresent">0</span></div>
+              <div class="stat"><span class="k">Marked Absent</span><span class="v" id="sevenAbsent">0</span></div>
+            </div>
+            <div class="summary-card">
+              <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">📈 Monthly (local)</div>
+              <div class="stat"><span class="k">Present</span><span class="v" id="monthlyPresent">0</span></div>
+              <div class="stat"><span class="k">Absent</span><span class="v" id="monthlyAbsent">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Section -->
+      <div id="sectionReports" class="hidden">
+        <div class="report-grid">
+          <div class="report-card">
+            <h3>✅ Today Present (local)</h3>
+            <button class="btn" onclick="downloadReport('today-present')">Download CSV</button>
+          </div>
+          <div class="report-card">
+            <h3>❌ Today Absent (local)</h3>
+            <button class="btn" onclick="downloadReport('today-absent')">Download CSV</button>
+          </div>
+          <div class="report-card">
+            <h3>👥 All Students + Status (local)</h3>
+            <button class="btn" onclick="downloadReport('today-all')">Download CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagnostic Section -->
+      <div id="sectionDiagnostic" class="hidden">
+        <div class="card" style="margin-bottom:12px;">
+          <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">System Checks</div>
+          <div id="diag" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:10px;">
+            <div class="card"><div>CSV Access</div><div id="diagCsv">⏳</div></div>
+            <div class="card"><div>Apps Script Reachable</div><div id="diagScript">⏳</div></div>
+            <div class="card"><div>Local Cache</div><div id="diagCache">⏳</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-weight:800;color:var(--brand);margin-bottom:8px;">About</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;">
+            <div><div style="font-size:12px;color:var(--muted);font-weight:700;">Sheet ID</div><div style="font-size:12px;word-break:break-all;" id="infoSheet"></div></div>
+            <div><div style="font-size:12px;color:var(--muted);font-weight:700;">CSV (Student_Data)</div><div style="font-size:12px;word-break:break-all;" id="infoCsv"></div></div>
+            <div><div style="font-size:12px;color:var(--muted);font-weight:700;">Apps Script URL</div><div style="font-size:12px;word-break:break-all;" id="infoScript"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // =================== CONFIG (YOUR EXISTING SYSTEM) ===================
+    const CONFIG = {
+      PIN: "39310242", // same as your previous UI (change if you want)
+      SHEET_ID: "1woOwa-1ydra43sLalpjGB4x-1ZjeE_rWSy9LDvGBpJA",
+      SHEET_NAMES: { STUDENTS: "Student_Data", ATTENDANCE: "Attendance", LOGS: "Logs" },
+      STUDENTS_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhSsnnY8WKnRs-d-oeFjLT1ZhlE8RAb8EyUOUj8NfWzEI2bCha5SdcVWBfcD8z2cUm1DiiLpemKXf/pub?gid=493301113&single=true&output=csv",
+      SCRIPT_URL: "https://script.google.com/macros/s/AKfycby4CfM971aZh-9JD0qe5yuQR3J7tAbFR0py1Svv-iUflr4Wp5Awnl6WfeckqAf-RU7cwA/exec",
+      // Optional: Attendance via Visualization API (sheet must be published-to-web)
+      // ATT_JSON_URL: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Attendance`
+    };
+
+    // =================== STATE ===================
+    const DB = { students: [], attendance: [], lastSync: null };
+    const $ = (id) => document.getElementById(id);
+    const show = (id) => $(id).classList.remove('hidden');
+    const hide = (id) => $(id).classList.add('hidden');
+
+    function setOverlay(msg){ $('overlayText').textContent = msg || 'Loading…'; show('overlay'); }
+    function clearOverlay(){ hide('overlay'); }
+
+    function setStatus(text, ok=true){ $('syncText').textContent = text; $('syncDot').style.background = ok ? '#10b981' : '#f59e0b'; }
+
+    // =================== LOGIN ===================
+    $('loginBtn').addEventListener('click', () => {
+      const pin = $('pinInput').value.trim();
+      if(pin === CONFIG.PIN){
+        hide('viewLogin');
+        show('viewMain');
+        boot();
+      } else {
+        $('loginError').textContent = '❌ Invalid PIN';
+      }
+    });
+    $('pinInput').addEventListener('keypress', e => { if(e.key==='Enter') $('loginBtn').click(); });
+
+    // =================== BOOT ===================
+    async function boot(){
+      // Info boxes
+      $('infoSheet').textContent = CONFIG.SHEET_ID;
+      $('infoCsv').textContent = CONFIG.STUDENTS_CSV_URL;
+      $('infoScript').textContent = CONFIG.SCRIPT_URL;
+
+      setOverlay('Downloading students…');
+      const ok = await fetchStudentsFromCSV();
+      clearOverlay();
+
+      populateClassDropdown();
+      renderStudentList();
+      updateSummary();
+
+      // Diagnostics
+      runDiagnostics();
+    }
+
+    // =================== DATA LOADERS ===================
+    async function fetchStudentsFromCSV(){
+      try{
+        const res = await fetch(CONFIG.STUDENTS_CSV_URL, { cache: 'no-store' });
+        if(!res.ok) throw new Error('CSV fetch failed');
+        const text = await res.text();
+        const lines = text.split(/\r?\n/).filter(Boolean);
+        DB.students = [];
+        for(let i=1;i<lines.length;i++){
+          const cols = parseCsvLine(lines[i]);
+          if(cols.length < 12) continue;
+          const s = { uid: (cols[0]||'').trim().toUpperCase(), sr: cols[1]||'', enrl: cols[2]||'', name: cols[3]||'', gender: cols[4]||'', dob: cols[5]||'', age: cols[6]||'', doa: cols[7]||'', father: cols[8]||'', bform: cols[9]||'', class: String(cols[10]||'').trim(), mobile: cols[11]||'' };
+          if(s.uid) DB.students.push(s);
+        }
+        DB.lastSync = new Date().toISOString();
+        localStorage.setItem('rf_dash_students', JSON.stringify(DB.students));
+        localStorage.setItem('rf_dash_lastSync', DB.lastSync);
+        setStatus('Students synced');
+        return true;
+      }catch(err){
+        // fallback to cache
+        try{
+          const cached = JSON.parse(localStorage.getItem('rf_dash_students')||'[]');
+          if(cached.length){ DB.students = cached; setStatus('Offline: loaded cache', false); return true; }
+        }catch(_){ }
+        alert('Failed to load students: '+err.message);
+        setStatus('Load failed', false);
+        return false;
+      }
+    }
+
+    function parseCsvLine(line){
+      const out = []; let cur = ''; let q = false;
+      for(let i=0;i<line.length;i++){
+        const c = line[i];
+        if(c==='"'){ q = !q; continue; }
+        if(c===',' && !q){ out.push(cur); cur=''; continue; }
+        cur += c;
+      }
+      out.push(cur);
+      return out.map(s=>s.replace(/^\s+|\s+$/g,''));
+    }
+
+    // =================== UI RENDER ===================
+    function populateClassDropdown(){
+      const classes = [...new Set(DB.students.map(s=>s.class))].filter(Boolean).sort((a,b)=>parseInt(a)-parseInt(b));
+      const dd = $('classSelect');
+      dd.innerHTML = '<option value="">All Classes</option>' + classes.map(c=>`<option value="${c}">Class ${c}</option>`).join('');
+    }
+
+    function renderStudentList(list){
+      const arr = list || DB.students;
+      const today = todayKey();
+      const html = arr.map(s=>{
+        const rec = DB.attendance.find(a=>a.uid===s.uid && a.date===today);
+        const st = rec ? rec.status : 'pending';
+        const cls = st==='Present' ? 'present' : st==='Absent' ? 'absent' : 'pending';
+        const txt = st==='Present' ? '✓ Present' : st==='Absent' ? '✗ Absent' : 'Mark';
+        return `<div class="row"><div style="flex:1"><div class="name">${escapeHtml(s.name)}</div><div class="meta">👨‍👧 ${escapeHtml(s.father)} • Class ${escapeHtml(s.class)} • Roll ${escapeHtml(s.sr)} • UID ${escapeHtml(s.uid)}</div></div><button class="badge ${cls}" onclick="toggleAttendance('${s.uid}')">${txt}</button></div>`;
+      }).join('');
+      $('studentList').innerHTML = html || '<div style="padding:28px;text-align:center;color:var(--muted);">No students</div>';
+    }
+
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;","\u003c":"&lt;",">":"&gt;","\u003e":"&gt;","\"":"&quot;","'":"&#039;"}[m]||m)); }
+
+    // Search & class filter
+    $('classSelect').addEventListener('change', e=>{
+      const cls = e.target.value;
+      const base = cls ? DB.students.filter(s=>s.class===cls) : DB.students;
+      const q = $('searchInput').value.trim().toLowerCase();
+      const list = q? base.filter(s => s.name.toLowerCase().includes(q) || s.father.toLowerCase().includes(q) || s.uid.toLowerCase().includes(q) || String(s.sr).includes(q)) : base;
+      renderStudentList(list);
+    });
+    $('searchInput').addEventListener('input', e=>{
+      const q = e.target.value.trim().toLowerCase();
+      const cls = $('classSelect').value;
+      const base = cls ? DB.students.filter(s=>s.class===cls) : DB.students;
+      const list = q? base.filter(s => s.name.toLowerCase().includes(q) || s.father.toLowerCase().includes(q) || s.uid.toLowerCase().includes(q) || String(s.sr).includes(q)) : base;
+      renderStudentList(list);
+    });
+
+    // =================== MARKING (via your existing Apps Script) ===================
+    async function toggleAttendance(uid){
+      // We will mark as Present by calling your Apps Script like ESP32 does.
+      // The script deduplicates by UID+date, so multiple clicks are safe.
+      const url = `${CONFIG.SCRIPT_URL}?uid=${encodeURIComponent(uid)}`;
+      setOverlay('Marking attendance…');
+      try{
+        const res = await fetch(url, { method:'GET' });
+        const text = await res.text();
+        // Some GAS deployments return text/json; try parse but be tolerant
+        let json = {};
+        try { json = JSON.parse(text); } catch(_){ json = {}; }
+
+        const success = /"success"\s*:\s*true/i.test(text);
+        const already = /"alreadyMarked"\s*:\s*true/i.test(text) || /"alreadymarked"\s*:\s*true/i.test(text);
+        const notFound = /"notFound"\s*:\s*true/i.test(text) || /"notfound"\s*:\s*true/i.test(text);
+
+        if(notFound){ alert('UID not found in Student_Data'); return; }
+        if(success || already){
+          markLocal(uid, 'Present');
+          updateSummary();
+          renderStudentList();
+          setStatus(already? 'Already marked today' : 'Marked present');
+        } else {
+          alert('Unexpected response from Apps Script. Check deployment.');
+          setStatus('Script response ?', false);
+        }
+      }catch(err){
+        alert('Network error: '+err.message);
+        setStatus('Network error', false);
+      } finally { clearOverlay(); }
+    }
+
+    function markLocal(uid, status){
+      const today = todayKey();
+      const i = DB.attendance.findIndex(a=>a.uid===uid && a.date===today);
+      const rec = { uid, date: today, time: new Date().toLocaleTimeString('en-GB'), status };
+      if(i>=0) DB.attendance[i] = rec; else DB.attendance.push(rec);
+      // Persist local attendance snapshot (for reports)
+      localStorage.setItem('rf_dash_attendance', JSON.stringify(DB.attendance));
+    }
+
+    // =================== SUMMARY & REPORTS (local snapshot)
+    function todayKey(){
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+
+    function updateSummary(){
+      const total = DB.students.length;
+      const today = todayKey();
+      const recs = DB.attendance.filter(a=>a.date===today);
+      const present = recs.filter(a=>a.status==='Present').length;
+      const absent = recs.filter(a=>a.status==='Absent').length; // rarely used here
+      $('todayTotal').textContent = total;
+      $('todayPresent').textContent = `${present}`;
+      $('todayAbsent').textContent = `${absent}`;
+
+      // 7d & monthly (local)
+      const now = new Date();
+      const sevenAgo = new Date(now.getTime()-7*86400000);
+      const monthAgo = new Date(now.getTime()-30*86400000);
+
+      const parse = (ddmmyyyy)=>{ const [dd,mm,yy]=ddmmyyyy.split('/').map(n=>parseInt(n,10)); return new Date(yy,mm-1,dd); };
+      const within = (d,from)=> d>=from;
+
+      const p7 = DB.attendance.filter(a=>a.status==='Present' && within(parse(a.date), sevenAgo)).length;
+      const a7 = DB.attendance.filter(a=>a.status==='Absent' && within(parse(a.date), sevenAgo)).length;
+      const pm = DB.attendance.filter(a=>a.status==='Present' && within(parse(a.date), monthAgo)).length;
+      const am = DB.attendance.filter(a=>a.status==='Absent' && within(parse(a.date), monthAgo)).length;
+
+      $('sevenPresent').textContent = p7; $('sevenAbsent').textContent = a7;
+      $('monthlyPresent').textContent = pm; $('monthlyAbsent').textContent = am;
+    }
+
+    function downloadReport(type){
+      const today = todayKey();
+      let data = [];
+      let filename = '';
+      if(type==='today-present'){
+        data = DB.students.filter(s=> DB.attendance.find(a=>a.uid===s.uid && a.date===today && a.status==='Present'));
+        filename = `present_${today.replaceAll('/','-')}.csv`;
+      } else if(type==='today-absent'){
+        data = DB.students.filter(s=> DB.attendance.find(a=>a.uid===s.uid && a.date===today && a.status==='Absent'));
+        filename = `absent_${today.replaceAll('/','-')}.csv`;
+      } else if(type==='today-all'){
+        data = DB.students.map(s=>{
+          const rec = DB.attendance.find(a=>a.uid===s.uid && a.date===today);
+          return { ...s, attendance: rec ? rec.status : 'Not Marked', time: rec ? rec.time : '-' };
+        });
+        filename = `attendance_${today.replaceAll('/','-')}.csv`;
+      }
+      exportCsv(data, filename);
+    }
+
+    function exportCsv(data, filename){
+      if(!data || !data.length){ alert('No data to export'); return; }
+      const headers = ['UID','Sr No','Enrolment','Name','Father','Class','Gender','DOB','Status','Time'];
+      const rows = data.map(s=>[
+        s.uid||'', s.sr||'', s.enrl||'', s.name||'', s.father||'', s.class||'', s.gender||'', s.dob||'', s.attendance||'Present', s.time||'-'
+      ]);
+      let csv = headers.join(',')+'\n';
+      rows.forEach(r=>{ csv += r.map(c=>`"${String(c).replaceAll('"','""')}"`).join(',')+'\n'; });
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // =================== DIAGNOSTICS ===================
+    async function runDiagnostics(){
+      // CSV
+      try{
+        const r = await fetch(CONFIG.STUDENTS_CSV_URL, { method:'HEAD' });
+        $('diagCsv').textContent = r.ok ? '✅ OK' : '⚠️ Check publish link';
+      } catch{ $('diagCsv').textContent = '⚠️ Network?'; }
+      // Script (we expect an error JSON for missing UID)
+      try{
+        const r = await fetch(CONFIG.SCRIPT_URL+'?test=test', { method:'GET' });
+        const t = await r.text();
+        const looksOk = /\{/.test(t) || r.ok;
+        $('diagScript').textContent = looksOk ? '✅ Reachable' : '⚠️ Not reachable';
+      } catch{ $('diagScript').textContent = '⚠️ Network?'; }
+      // Cache
+      try{
+        const cached = JSON.parse(localStorage.getItem('rf_dash_students')||'[]');
+        $('diagCache').textContent = cached.length ? `✅ ${cached.length} cached` : '—';
+      } catch{ $('diagCache').textContent = '—'; }
+    }
+
+    // =================== NAV ===================
+    const mainTabs = ['Attendance','Reports','Diagnostic'];
+    mainTabs.forEach(t=>{
+      document.getElementById('tab'+t).addEventListener('click', ()=>{
+        mainTabs.forEach(x=>{ document.getElementById('tab'+x).classList.remove('active'); document.getElementById('section'+x).classList.add('hidden'); });
+        document.getElementById('tab'+t).classList.add('active'); document.getElementById('section'+t).classList.remove('hidden');
+      });
+    });
+
+    const subTabs = ['Today','Summary'];
+    subTabs.forEach(t=>{
+      document.getElementById('sub'+t).addEventListener('click', ()=>{
+        subTabs.forEach(x=>{ document.getElementById('sub'+x).classList.remove('active'); document.getElementById('content'+x).classList.add('hidden'); });
+        document.getElementById('sub'+t).classList.add('active'); document.getElementById('content'+t).classList.remove('hidden');
+        if(t==='Summary') updateSummary();
+      });
+    });
+
+    // Restore previous local attendance
+    (function restore(){ try{ DB.attendance = JSON.parse(localStorage.getItem('rf_dash_attendance')||'[]'); }catch{ DB.attendance=[]; } })();
+  </script>
+</body>
+</html>
