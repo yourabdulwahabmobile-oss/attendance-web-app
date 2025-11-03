@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPS Sheinwal - RF Attendance v6.1</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    :root{
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg:#f8fafc; 
+      --card:#ffffff; 
+      --text:#1e293b; 
+      --muted:#64748b;
+      --brand:#6366f1; 
+      --brand-hover:#4f46e5;
+      --brand-light:#eef2ff;
+      --ok:#10b981; 
+      --warn:#f59e0b; 
+      --bad:#ef4444;
+      --border:#e2e8f0; 
+      --shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    
+    * { box-sizing: border-box; margin:0; padding:0; }
+    
+    html,body{
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      line-height:1.6;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:var(--bg-gradient);
+      color:#fff;
+      text-align:center;
+      padding:16px;
+      box-shadow:var(--shadow-lg);
+    }
+    
+    .school-name{
+      font-size:clamp(18px, 4vw, 24px);
+      font-weight:800;
+      margin-bottom:4px;
+      text-shadow:0 2px 4px rgba(0,0,0,0.1);
+      letter-spacing:-0.5px;
+    }
+    
+    .bar h1{
+      font-size:clamp(14px, 3.5vw, 18px);
+      margin:0;
+      font-weight:600;
+      letter-spacing:0.5px;
+      opacity:0.95;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:12px;
+      padding-bottom:100px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:var(--shadow-lg);
+      padding:20px;
+      border:1px solid var(--border);
+      margin-bottom:16px;
+    }
+
+    .system-info-banner{
+      background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      border:2px solid var(--brand-light);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+
+    .system-info-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+      gap:10px;
+    }
+
+    .info-item{
+      text-align:center;
+      padding:10px;
+      background:var(--card);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+    }
+
+    .info-label{
+      font-size:10px;
+      color:var(--muted);
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      margin-bottom:3px;
+    }
+
+    .info-value{
+      font-size:13px;
+      font-weight:700;
+      color:var(--brand);
+    }
+
+    .main-tabs{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+    
+    .main-tabs button{
+      padding:14px 10px;
+      border-radius:12px;
+      border:2px solid var(--border);
+      background:var(--card);
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      transition:all 0.3s ease;
+      box-shadow:var(--shadow);
+      color:var(--text);
+      position:relative;
+      overflow:hidden;
+    }
+    
+    .main-tabs button::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:var(--bg-gradient);
+      opacity:0;
+      transition:opacity 0.3s ease;
+      z-index:-1;
+    }
+    
+    .main-tabs button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.3);
+      border-color:var(--brand);
+    }
+    
+    .main-tabs button.active{
+      background:var(--bg-gradient);
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.5);
+      transform:scale(1.05);
+    }
+    
+    .main-tabs button.active::before{
+      opacity:1;
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    
+    .label-text{
+      font-weight:600;
+      font-size:12px;
+      color:var(--text);
+      margin-bottom:6px;
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    input[type="text"],input[type="password"],select{
+      padding:12px 14px;
+      border-radius:10px;
+      border:2px solid var(--border);
+      font-size:14px;
+      width:100%;
+      transition:all 0.2s;
+      background:var(--card);
+      font-family:inherit;
+    }
+    
+    input:focus,select:focus{
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-light);
+    }
+
+    .select-all-bar{
+      background:var(--brand-light);
+      border:2px solid var(--brand);
+      border-radius:10px;
+      padding:14px 16px;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .select-all-bar input[type="checkbox"]{
+      width:20px;
+      height:20px;
+      cursor:pointer;
+      accent-color:var(--brand);
+    }
+
+    .select-all-bar label{
+      font-weight:700;
+      font-size:14px;
+      color:var(--brand);
+      cursor:pointer;
+      flex:1;
+    }
+
+    .selected-count{
+      background:var(--brand);
+      color:white;
+      padding:4px 12px;
+      border-radius:16px;
+      font-weight:700;
+      font-size:12px;
+    }
+
+    .list{
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      margin-bottom:20px;
+      box-shadow:var(--shadow);
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .row-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border-top:1px solid var(--border);
+      transition:all 0.2s;
+      gap:10px;
+    }
+    
+    .row-item:first-child{border-top:none}
+    
+    .row-item:hover{
+      background:var(--brand-light);
+    }
+
+    .row-item.selected{
+      background:#d1fae5;
+      border-left:4px solid var(--ok);
+    }
+    
+    .student-info{
+      flex:1;
+      min-width:0;
+    }
+
+    .name{
+      font-weight:700;
+      font-size:14px;
+      color:var(--text);
+      margin-bottom:2px;
+    }
+    
+    .meta{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:500;
+    }
+
+    .student-checkbox{
+      width:20px;
+      height:20px;
+      cursor:pointer;
+      flex-shrink:0;
+      accent-color:var(--ok);
+    }
+
+    .fab{
+      position:fixed;
+      bottom:16px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:100;
+      width:calc(100% - 24px);
+      max-width:400px;
+    }
+    
+    .fab button{
+      width:100%;
+      padding:16px 24px;
+      border-radius:50px;
+      font-size:16px;
+      font-weight:800;
+      background:var(--bg-gradient);
+      color:#fff;
+      border:none;
+      box-shadow:0 10px 25px -5px rgba(99,102,241,0.5);
+      cursor:pointer;
+      transition:all 0.3s;
+      letter-spacing:0.5px;
+    }
+    
+    .fab button:hover:not(:disabled){
+      transform:translateY(-3px);
+      box-shadow:0 15px 30px -5px rgba(99,102,241,0.6);
+    }
+    
+    .fab button:active:not(:disabled){
+      transform:translateY(-1px);
+    }
+
+    .fab button:disabled{
+      opacity:0.6;
+      cursor:not-allowed;
+      background:linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    }
+
+    .upload-toast{
+      position:fixed;
+      top:80px;
+      right:12px;
+      background:white;
+      border:2px solid var(--brand);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:var(--shadow-lg);
+      z-index:90;
+      min-width:280px;
+      animation:slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn{
+      from{transform:translateX(400px);opacity:0;}
+      to{transform:translateX(0);opacity:1;}
+    }
+
+    .upload-progress-bar{
+      width:100%;
+      height:8px;
+      background:var(--border);
+      border-radius:4px;
+      overflow:hidden;
+      margin:10px 0;
+    }
+
+    .upload-progress-fill{
+      height:100%;
+      background:var(--brand);
+      transition:width 0.3s;
+    }
+
+    .hidden{display:none!important}
+
+    .login-container {
+      text-align:center;
+      max-width:400px;
+      margin:40px auto;
+    }
+    
+    .login-icon {
+      width:70px;
+      height:70px;
+      margin:0 auto 16px;
+      background:var(--bg-gradient);
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:36px;
+      box-shadow:var(--shadow-lg);
+    }
+
+    @media (min-width: 768px) {
+      .wrap { padding:20px; padding-bottom:100px; }
+      .toolbar { grid-template-columns:1fr 1fr; }
+      .system-info-grid { grid-template-columns:repeat(4, 1fr); }
+      .main-tabs { grid-template-columns:repeat(4, 1fr); }
+    }
+
+    @media (max-width: 767px) {
+      .upload-toast { right:12px; left:12px; min-width:unset; }
+      .main-tabs { font-size:13px; }
+      .main-tabs button { padding:12px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="school-name">🎓 GPS Sheinwal (Shamaskay)</div>
+    <div class="bar"><h1>RF Attendance Management System v6.1</h1></div>
+  </header>
+  
+  <div class="wrap">
+    <!-- LOGIN VIEW -->
+    <section id="viewLogin" class="card login-container">
+      <div class="login-icon">🔐</div>
+      <div style="font-size:24px;font-weight:800;margin-bottom:6px;color:var(--text);">Secure Login</div>
+      <div style="color:var(--muted);margin-bottom:20px;font-size:14px;">Enter your PIN to access system</div>
+      <div id="loginDateTime" style="color:var(--muted);margin-bottom:16px;font-size:12px;"></div>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="20" placeholder="Enter PIN" 
+        style="width:90%;padding:12px 18px;text-align:center;letter-spacing:3px;margin-bottom:16px;font-size:16px;" />
+      <button id="loginBtn" style="padding:12px 36px;border:none;border-radius:10px;background:var(--bg-gradient);
+        color:white;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.4);transition:all 0.3s;">
+        Login →
+      </button>
+      <div id="loginError" style="margin-top:14px;color:var(--bad);font-weight:600;font-size:13px;"></div>
+    </section>
+
+    <!-- MAIN VIEW -->
+    <section id="viewMain" class="hidden">
+      <div class="system-info-banner">
+        <div class="system-info-grid">
+          <div class="info-item">
+            <div class="info-label">👥 Students</div>
+            <div class="info-value" id="totalStudentsInfo">0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">✅ Selected</div>
+            <div class="info-value" style="color:var(--ok)" id="selectedStudentsInfo">0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">📚 Classes</div>
+            <div class="info-value" style="color:var(--brand)" id="classCountInfo">0</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">🔄 Status</div>
+            <div class="info-value" id="syncStatusInfo">Ready</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Tabs -->
+      <div class="main-tabs">
+        <button id="tabAttendance" class="active">📋 Attendance</button>
+        <button id="tabReports">📄 Reports</button>
+        <button id="tabSummary">📊 Summary</button>
+        <button id="tabSystemInfo">🔧 System</button>
+      </div>
+
+      <!-- ATTENDANCE SECTION -->
+      <div id="sectionAttendance">
+        <div class="toolbar">
+          <div>
+            <span class="label-text">📚 Select Class</span>
+            <select id="classSelect">
+              <option value="">All Classes</option>
+            </select>
+          </div>
+          <div>
+            <span class="label-text">🔍 Search Student</span>
+            <input type="text" id="searchInput" placeholder="Search by name, father name or enrollment..." />
+          </div>
+        </div>
+
+        <div class="select-all-bar">
+          <input type="checkbox" id="selectAllCheckbox" />
+          <label for="selectAllCheckbox">Select All (Present)</label>
+          <span class="selected-count" id="selectedCount">0 Selected</span>
+        </div>
+
+        <div id="studentList" class="list"></div>
+        
+        <div class="fab" id="submitFab">
+          <button id="submitBtn">✓ Submit Attendance</button>
+        </div>
+      </div>
+
+      <!-- REPORTS SECTION -->
+      <div id="sectionReports" class="hidden">
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:16px;font-size:18px;">📄 Download Reports</h3>
+          <p style="color:var(--muted);margin-bottom:20px;font-size:14px;">Generate and download attendance reports</p>
+          <div style="text-align:center;padding:40px;color:var(--muted);">
+            📊 Report generation feature coming soon...
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY SECTION -->
+      <div id="sectionSummary" class="hidden">
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:16px;font-size:18px;">📊 Real-Time Upload Status</h3>
+          <div id="summaryContent" style="padding:20px;">
+            <div style="text-align:center;color:var(--muted);padding:40px;">
+              Select students and submit attendance to view summary
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYSTEM INFO SECTION -->
+      <div id="sectionSystemInfo" class="hidden">
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:16px;font-size:18px;">🔧 System Diagnostic & Information</h3>
+          <div id="systemInfoContent"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /********************************************************************************************
+     * 📱 GPS Sheinwal Mobile App v6.1 FIXED
+     * ------------------------------------------------------------------------------------------
+     * ✅ Fixed tab color changes with better visual feedback
+     * ✅ Improved mobile responsiveness
+     * ✅ Better FAB positioning
+     * ✅ Enhanced checkbox styling
+     ********************************************************************************************/
+
+    // ===== CONFIGURATION (UPDATE THESE!) =====
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4KSivj4GcOBSq06qm2enJI_BN6LSH_J_k1i8RNjwuSmOrbI6RuYCfBWZK6Dhgy5GIFg/exec";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhSsnnY8WKnRs-d-oeFjLT1ZhlE8RAb8EyUOUj8NfWzEI2bCha5SdcVWBfcD8z2cUm1DiiLpemKXf/pub?gid=493301113&single=true&output=csv";
+    const PIN = "39310242";
+    
+    // ===== GLOBAL STATE =====
+    let g_students = [];
+    let g_filteredStudents = [];
+    let g_selectedUIDs = new Set();
+    let g_sessionStats = {
+      totalUploaded: 0,
+      totalDuplicate: 0,
+      totalFailed: 0,
+      scanned: 0,
+      queued: 0,
+      uploading: false
+    };
+    
+    // System Information
+    let g_systemInfo = {
+      ipAddress: 'Not Available',
+      macAddress: 'Not Available',
+      rfScanner: 'RC522 (Web Version)',
+      wifiName: 'Browser Network',
+      studentsDownloaded: 0,
+      memoryAvailable: 'N/A (Web App)',
+      firmwareVersion: 'v6.1 Web',
+      scriptVersion: 'v6.1.2025'
+    };
+
+    // ===== LOGIN =====
+    document.getElementById('loginBtn')?.addEventListener('click', handleLogin);
+    document.getElementById('pinInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    function handleLogin() {
+      const pin = document.getElementById('pinInput').value.trim();
+      const errorEl = document.getElementById('loginError');
+      
+      if (pin === PIN) {
+        errorEl.textContent = '';
+        document.getElementById('viewLogin').classList.add('hidden');
+        document.getElementById('viewMain').classList.remove('hidden');
+        downloadStudentData();
+      } else {
+        errorEl.textContent = '❌ Invalid PIN!';
+        setTimeout(() => errorEl.textContent = '', 3000);
+      }
+    }
+
+    // Update login time
+    setInterval(() => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB');
+      const timeStr = now.toLocaleTimeString('en-GB');
+      const el = document.getElementById('loginDateTime');
+      if (el) el.textContent = `${dateStr} ${timeStr}`;
+    }, 1000);
+
+    // ===== DOWNLOAD STUDENT DATA =====
+    async function downloadStudentData() {
+      try {
+        console.log('📥 Downloading student data...');
+        const response = await fetch(CSV_URL);
+        const csvText = await response.text();
+        
+        const lines = csvText.trim().split('\n');
+        g_students = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const cols = parseCSVLine(lines[i]);
+          if (cols.length < 12) continue;
+          
+          g_students.push({
+            uid: cols[0] || '',
+            sr: cols[1] || '',
+            enrollment: cols[2] || '',
+            name: cols[3] || '',
+            gender: cols[4] || '',
+            dob: cols[5] || '',
+            age: cols[6] || '',
+            doa: cols[7] || '',
+            father: cols[8] || '',
+            bform: cols[9] || '',
+            class: cols[10] || '',
+            mobile: cols[11] || ''
+          });
+        }
+        
+        console.log(`✅ Loaded ${g_students.length} students`);
+        g_systemInfo.studentsDownloaded = g_students.length;
+        updateSystemInfo();
+        populateClassDropdown();
+        renderStudentList();
+        
+      } catch (error) {
+        console.error('❌ Failed to download student data:', error);
+        alert('Failed to load student data. Please check your internet connection and try again.');
+      }
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    }
+
+    // ===== POPULATE CLASS DROPDOWN =====
+    function populateClassDropdown() {
+      const classes = [...new Set(g_students.map(s => s.class))].filter(c => c).sort();
+      const select = document.getElementById('classSelect');
+      
+      select.innerHTML = '<option value="">All Classes</option>';
+      classes.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls;
+        opt.textContent = cls;
+        select.appendChild(opt);
+      });
+      
+      document.getElementById('classCountInfo').textContent = classes.length;
+    }
+
+    // ===== FILTER & RENDER =====
+    document.getElementById('classSelect')?.addEventListener('change', filterAndRender);
+    document.getElementById('searchInput')?.addEventListener('input', filterAndRender);
+
+    function filterAndRender() {
+      const classFilter = document.getElementById('classSelect').value;
+      const searchText = document.getElementById('searchInput').value.toLowerCase();
+      
+      g_filteredStudents = g_students.filter(s => {
+        const matchClass = !classFilter || s.class === classFilter;
+        const matchSearch = !searchText || 
+          s.name.toLowerCase().includes(searchText) ||
+          s.father.toLowerCase().includes(searchText) ||
+          s.enrollment.toLowerCase().includes(searchText) ||
+          s.uid.toLowerCase().includes(searchText);
+        
+        return matchClass && matchSearch;
+      });
+      
+      renderStudentList();
+    }
+
+    function renderStudentList() {
+      const container = document.getElementById('studentList');
+      container.innerHTML = '';
+      
+      if (g_filteredStudents.length === 0) {
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">No students found</div>';
+        return;
+      }
+      
+      g_filteredStudents.forEach((student, index) => {
+        const identifier = student.enrollment || student.uid || student.name;
+        const div = document.createElement('div');
+        div.className = 'row-item';
+        if (g_selectedUIDs.has(identifier)) {
+          div.classList.add('selected');
+        }
+        
+        div.innerHTML = `
+          <div class="student-info">
+            <div class="name">${student.name}</div>
+            <div class="meta">
+              👨‍👧 ${student.father} | 
+              🎓 ${student.class} | 
+              🆔 ${student.enrollment || student.uid || 'N/A'}
+            </div>
+          </div>
+          <input type="checkbox" 
+                 class="student-checkbox" 
+                 data-index="${index}"
+                 data-uid="${student.uid}"
+                 data-enrollment="${student.enrollment}"
+                 data-name="${student.name}"
+                 data-father="${student.father}"
+                 ${g_selectedUIDs.has(identifier) ? 'checked' : ''}>
+        `;
+        
+        container.appendChild(div);
+      });
+      
+      document.querySelectorAll('.student-checkbox').forEach(cb => {
+        cb.addEventListener('change', handleCheckboxChange);
+      });
+      
+      updateSelectedCount();
+    }
+
+    // ===== CHECKBOX HANDLING =====
+    function handleCheckboxChange(e) {
+      const cb = e.target;
+      const identifier = cb.dataset.enrollment || cb.dataset.uid || cb.dataset.name;
+      
+      if (cb.checked) {
+        g_selectedUIDs.add(identifier);
+        cb.closest('.row-item').classList.add('selected');
+      } else {
+        g_selectedUIDs.delete(identifier);
+        cb.closest('.row-item').classList.remove('selected');
+      }
+      
+      updateSelectedCount();
+      updateSelectAllCheckbox();
+    }
+
+    // ===== SELECT ALL =====
+    document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      
+      g_filteredStudents.forEach(s => {
+        const id = s.enrollment || s.uid || s.name;
+        if (checked) {
+          g_selectedUIDs.add(id);
+        } else {
+          g_selectedUIDs.delete(id);
+        }
+      });
+      
+      renderStudentList();
+    });
+
+    function updateSelectAllCheckbox() {
+      const checkbox = document.getElementById('selectAllCheckbox');
+      if (!checkbox) return;
+      
+      const allSelected = g_filteredStudents.length > 0 && 
+        g_filteredStudents.every(s => g_selectedUIDs.has(s.enrollment || s.uid || s.name));
+      
+      checkbox.checked = allSelected;
+    }
+
+    function updateSelectedCount() {
+      const count = g_selectedUIDs.size;
+      document.getElementById('selectedCount').textContent = `${count} Selected`;
+      document.getElementById('selectedStudentsInfo').textContent = count;
+    }
+
+    // ===== SUBMIT ATTENDANCE =====
+    document.getElementById('submitBtn')?.addEventListener('click', submitAttendance);
+
+    async function submitAttendance() {
+      if (g_selectedUIDs.size === 0) {
+        alert('❌ Please select at least one student!');
+        return;
+      }
+
+      const selectedStudents = g_filteredStudents.filter(s => 
+        g_selectedUIDs.has(s.enrollment || s.uid || s.name)
+      );
+
+      const total = selectedStudents.length;
+      let success = 0, duplicate = 0, failed = 0;
+
+      // Update stats
+      g_sessionStats.scanned = total;
+      g_sessionStats.queued = total;
+      g_sessionStats.uploading = true;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = `Uploading 0/${total}...`;
+
+      showUploadToast(0, total);
+      updateSummary(); // Update summary to show queue
+
+      for (let i = 0; i < selectedStudents.length; i++) {
+        const student = selectedStudents[i];
+        
+        try {
+          let url = `${SCRIPT_URL}?action=insert`;
+          
+          if (student.uid) {
+            url += `&uid=${encodeURIComponent(student.uid)}`;
+          }
+          
+          if (student.enrollment) {
+            url += `&enrollment=${encodeURIComponent(student.enrollment)}`;
+          }
+          
+          url += `&name=${encodeURIComponent(student.name)}`;
+          url += `&father=${encodeURIComponent(student.father)}`;
+          
+          console.log(`📤 Sending: ${student.name} (${student.enrollment || student.uid || 'name-based'})`);
+          
+          const response = await fetch(url, { method: 'GET' });
+          const result = await response.json();
+          
+          console.log(`📥 Response:`, result);
+          
+          if (result.success) {
+            success++;
+            g_sessionStats.totalUploaded++;
+            g_selectedUIDs.delete(student.enrollment || student.uid || student.name);
+          } else if (result.alreadyMarked) {
+            duplicate++;
+            g_sessionStats.totalDuplicate++;
+            g_selectedUIDs.delete(student.enrollment || student.uid || student.name);
+          } else {
+            failed++;
+            g_sessionStats.totalFailed++;
+            console.error(`Failed: ${result.message || result.error}`);
+          }
+          
+          g_sessionStats.queued = total - (i + 1);
+          
+          btn.textContent = `Uploading ${i + 1}/${total}...`;
+          updateUploadToast(i + 1, total, success, duplicate, failed);
+          updateSummary(); // Update summary in real-time
+          
+          await new Promise(r => setTimeout(r, 800));
+          
+        } catch (error) {
+          console.error('❌ Upload error:', error);
+          failed++;
+          g_sessionStats.totalFailed++;
+        }
+      }
+
+      g_sessionStats.uploading = false;
+      g_sessionStats.queued = 0;
+      
+      btn.disabled = false;
+      btn.textContent = '✓ Submit Attendance';
+      hideUploadToast();
+
+      renderStudentList();
+      updateSystemInfo();
+      updateSummary();
+
+      const message = `📊 Upload Complete!\n\n✅ Success: ${success}\n⚠️ Duplicate: ${duplicate}\n❌ Failed: ${failed}\n\n📈 Session Total:\n✅ ${g_sessionStats.totalUploaded} uploaded\n⚠️ ${g_sessionStats.totalDuplicate} duplicates\n❌ ${g_sessionStats.totalFailed} failed`;
+      alert(message);
+    }
+
+    // ===== UPLOAD TOAST =====
+    function showUploadToast(current, total) {
+      const existing = document.getElementById('uploadToast');
+      if (existing) existing.remove();
+
+      const toast = document.createElement('div');
+      toast.id = 'uploadToast';
+      toast.className = 'upload-toast';
+      toast.innerHTML = `
+        <div style="font-weight:700;margin-bottom:8px;">📤 Uploading Attendance...</div>
+        <div class="upload-progress-bar">
+          <div class="upload-progress-fill" style="width:0%"></div>
+        </div>
+        <div id="uploadStats" style="font-size:12px;color:var(--muted);margin-top:6px;">
+          0 / ${total} uploaded
+        </div>
+      `;
+      document.body.appendChild(toast);
+    }
+
+    function updateUploadToast(current, total, success, duplicate, failed) {
+      const progress = (current / total) * 100;
+      const fill = document.querySelector('.upload-progress-fill');
+      const stats = document.getElementById('uploadStats');
+      
+      if (fill) fill.style.width = `${progress}%`;
+      if (stats) {
+        stats.innerHTML = `${current} / ${total} | ✅ ${success} | ⚠️ ${duplicate} | ❌ ${failed}`;
+      }
+    }
+
+    function hideUploadToast() {
+      setTimeout(() => {
+        const toast = document.getElementById('uploadToast');
+        if (toast) toast.remove();
+      }, 2000);
+    }
+
+    // ===== SYSTEM INFO =====
+    function updateSystemInfo() {
+      document.getElementById('totalStudentsInfo').textContent = g_students.length;
+      document.getElementById('syncStatusInfo').textContent = 'Ready';
+      
+      const content = document.getElementById('systemInfoContent');
+      if (content) {
+        content.innerHTML = `
+          <div style="display:grid;gap:16px;">
+            <!-- System Connectivity -->
+            <div style="padding:20px;background:linear-gradient(135deg, #10b98115 0%, #059c6915 100%);border-radius:12px;border:2px solid #10b981;">
+              <h4 style="color:#059669;margin:0 0 16px 0;font-size:17px;font-weight:800;">🔌 System Connectivity Status</h4>
+              <div style="display:grid;gap:10px;">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:8px;">
+                  <span style="font-size:20px;">✅</span>
+                  <span style="font-size:13px;color:var(--text);font-weight:600;">SPIFFS Mount (OK)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:8px;">
+                  <span style="font-size:20px;">✅</span>
+                  <span style="font-size:13px;color:var(--text);font-weight:600;">RC522 Scanner (Ready)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:8px;">
+                  <span style="font-size:20px;">📶</span>
+                  <span style="font-size:13px;color:var(--text);font-weight:600;">WiFi (Connected)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:8px;">
+                  <span style="font-size:20px;">⏳</span>
+                  <span style="font-size:13px;color:var(--text);font-weight:600;">Syncing NTP time (OK)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:8px;">
+                  <span style="font-size:20px;">⬇️</span>
+                  <span style="font-size:13px;color:var(--text);font-weight:600;">Students Data Download (${g_systemInfo.studentsDownloaded})</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Present Information -->
+            <div style="padding:20px;background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);border-radius:12px;border:2px solid var(--brand-light);">
+              <h4 style="color:var(--brand);margin:0 0 16px 0;font-size:17px;font-weight:800;">📋 System Present Information</h4>
+              <div style="display:grid;gap:8px;">
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">✅ IP Address:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.ipAddress}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ Mac Address:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.macAddress}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ RF Scanner Model:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.rfScanner}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ WiFi Name:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.wifiName}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid #10b981;">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ Students Data:</span>
+                  <span style="font-size:12px;color:#10b981;font-weight:700;">${g_systemInfo.studentsDownloaded} Students</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ ESP-32 Memory:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.memoryAvailable}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ Firmware Version:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.firmwareVersion}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:10px;background:white;border-radius:8px;border-left:4px solid var(--brand);">
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">⬇️ Script Version:</span>
+                  <span style="font-size:12px;color:var(--text);font-weight:700;">${g_systemInfo.scriptVersion}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- API Configuration -->
+            <div style="padding:16px;background:linear-gradient(135deg, #f59e0b15 0%, #d9770615 100%);border-radius:12px;border:2px solid #f59e0b;">
+              <div style="font-weight:700;color:#d97706;margin-bottom:8px;font-size:16px;">🔗 API Configuration</div>
+              <div style="font-size:10px;color:var(--text);word-break:break-all;font-family:monospace;background:white;padding:8px;border-radius:6px;margin-top:8px;">
+                ${SCRIPT_URL}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // ===== UPDATE SUMMARY =====
+    function updateSummary() {
+      const content = document.getElementById('summaryContent');
+      if (!content) return;
+      
+      const uploaded = g_sessionStats.totalUploaded;
+      const duplicate = g_sessionStats.totalDuplicate;
+      const failed = g_sessionStats.totalFailed;
+      const scanned = g_sessionStats.scanned;
+      const queued = g_sessionStats.queued;
+      const uploading = g_sessionStats.uploading;
+      
+      // Real-time status message
+      let statusMessage = '';
+      let statusColor = '';
+      let statusIcon = '';
+      
+      if (uploading) {
+        statusMessage = `✅ Scanned (${scanned}) | ✅ Upload (${uploaded}/${scanned}) | ↪ Queue (${queued}) | ⚠️ Duplicate (${duplicate}/${scanned})`;
+        statusColor = '#f59e0b';
+        statusIcon = '⏳';
+      } else if (uploaded > 0 && queued === 0) {
+        statusMessage = '🟢 All uploaded — queue cleared. 📦 Upload cycle complete.';
+        statusColor = '#10b981';
+        statusIcon = '✅';
+      } else {
+        statusMessage = '⏸️ Ready to upload. Select students and click Submit Attendance.';
+        statusColor = '#6366f1';
+        statusIcon = '📋';
+      }
+      
+      content.innerHTML = `
+        <div style="display:grid;gap:16px;">
+          <!-- Real-Time Upload Status -->
+          <div style="background:linear-gradient(135deg, ${uploading ? '#f59e0b15' : '#10b98115'} 0%, ${uploading ? '#d9770615' : '#059c6915'} 100%);padding:20px;border-radius:12px;border:2px solid ${uploading ? '#f59e0b' : '#10b981'};">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <span style="font-size:28px;">${statusIcon}</span>
+              <h4 style="color:${statusColor};margin:0;font-size:18px;font-weight:800;">Real-Time Upload Status</h4>
+            </div>
+            <div style="background:white;padding:16px;border-radius:10px;border-left:4px solid ${statusColor};">
+              <div style="font-size:14px;color:var(--text);font-weight:600;line-height:1.8;">
+                ${statusMessage}
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Statistics Grid -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+            <div style="text-align:center;padding:16px;background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);border-radius:10px;border:2px solid var(--brand-light);">
+              <div style="font-size:32px;font-weight:800;color:var(--brand);">${scanned}</div>
+              <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;text-transform:uppercase;">Scanned</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:linear-gradient(135deg, #10b98115 0%, #059c6915 100%);border-radius:10px;border:2px solid #10b981;">
+              <div style="font-size:32px;font-weight:800;color:#10b981;">${uploaded}</div>
+              <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;text-transform:uppercase;">Uploaded</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:linear-gradient(135deg, #f59e0b15 0%, #d9770615 100%);border-radius:10px;border:2px solid #f59e0b;">
+              <div style="font-size:32px;font-weight:800;color:#f59e0b;">${queued}</div>
+              <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;text-transform:uppercase;">Queued</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:linear-gradient(135deg, #8b5cf615 0%, #7c3aed15 100%);border-radius:10px;border:2px solid #8b5cf6;">
+              <div style="font-size:32px;font-weight:800;color:#8b5cf6;">${duplicate}</div>
+              <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;text-transform:uppercase;">Duplicate</div>
+            </div>
+          </div>
+
+          <!-- Session Statistics -->
+          <div style="background:white;padding:20px;border-radius:12px;border:2px solid var(--border);">
+            <h4 style="color:var(--text);margin:0 0 16px 0;font-size:16px;font-weight:800;">📊 Session Statistics</h4>
+            <div style="display:grid;gap:10px;">
+              <div style="display:flex;justify-content:space-between;padding:12px;background:linear-gradient(135deg, #10b98108 0%, #059c6908 100%);border-radius:8px;border-left:4px solid #10b981;">
+                <span style="color:var(--text);font-weight:600;font-size:13px;">✅ Total Uploaded</span>
+                <span style="color:#10b981;font-weight:800;font-size:14px;">${g_sessionStats.totalUploaded}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:12px;background:linear-gradient(135deg, #f59e0b08 0%, #d9770608 100%);border-radius:8px;border-left:4px solid #f59e0b;">
+                <span style="color:var(--text);font-weight:600;font-size:13px;">⚠️ Total Duplicates</span>
+                <span style="color:#f59e0b;font-weight:800;font-size:14px;">${g_sessionStats.totalDuplicate}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:12px;background:linear-gradient(135deg, #ef444408 0%, #dc262608 100%);border-radius:8px;border-left:4px solid #ef4444;">
+                <span style="color:var(--text);font-weight:600;font-size:13px;">❌ Total Failed</span>
+                <span style="color:#ef4444;font-weight:800;font-size:14px;">${g_sessionStats.totalFailed}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Success Rate -->
+          <div style="background:white;padding:20px;border-radius:12px;border:2px solid var(--border);">
+            <h4 style="color:var(--text);margin:0 0 16px 0;font-size:16px;font-weight:800;">📈 Success Rate</h4>
+            <div style="position:relative;height:36px;background:#e2e8f0;border-radius:18px;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,0.1);">
+              <div style="position:absolute;height:100%;background:linear-gradient(90deg, #10b981 0%, #059669 100%);width:${uploaded > 0 ? (uploaded / (uploaded + duplicate + failed) * 100) : 0}%;transition:width 0.5s ease;"></div>
+              <div style="position:absolute;width:100%;text-align:center;line-height:36px;font-weight:800;font-size:15px;color:white;text-shadow:0 1px 3px rgba(0,0,0,0.4);">
+                ${uploaded > 0 ? Math.round(uploaded / (uploaded + duplicate + failed) * 100) : 0}%
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ===== TAB SWITCHING =====
+    document.querySelectorAll('.main-tabs button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.main-tabs button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const sections = ['sectionAttendance', 'sectionReports', 'sectionSummary', 'sectionSystemInfo'];
+        sections.forEach(s => {
+          const el = document.getElementById(s);
+          if (el) el.classList.add('hidden');
+        });
+        
+        if (e.target.id === 'tabAttendance') {
+          document.getElementById('sectionAttendance')?.classList.remove('hidden');
+        }
+        if (e.target.id === 'tabReports') {
+          document.getElementById('sectionReports')?.classList.remove('hidden');
+        }
+        if (e.target.id === 'tabSummary') {
+          document.getElementById('sectionSummary')?.classList.remove('hidden');
+          updateSummary();
+        }
+        if (e.target.id === 'tabSystemInfo') {
+          document.getElementById('sectionSystemInfo')?.classList.remove('hidden');
+          updateSystemInfo();
+        }
+      });
+    });
+
+    // ===== INITIALIZE ON LOAD =====
+    console.log('📱 GPS Sheinwal Mobile App v6.1 loaded');
+    console.log('🔗 Script URL:', SCRIPT_URL);
+    console.log('📊 CSV URL:', CSV_URL);
+  </script>
+</body>
+</html>
