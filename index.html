@@ -1,0 +1,5148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, maximum-scale=3" />
+  <title>GPS Sheinwal - v15.7 (UID-Free + V43.2 Integration)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+    
+    :root{
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg:#f8fafc; 
+      --card:#ffffff; 
+      --text:#1e293b; 
+      --muted:#64748b;
+      --brand:#6366f1; 
+      --brand-hover:#4f46e5;
+      --brand-light:#eef2ff;
+      --ok:#10b981; 
+      --warn:#f59e0b; 
+      --bad:#ef4444;
+      --border:#e2e8f0; 
+      --shadow:0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    
+    * { box-sizing: border-box; margin:0; padding:0; }
+    
+    html,body{
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      line-height:1.6;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:var(--bg-gradient);
+      color:#fff;
+      text-align:center;
+      padding:16px;
+      box-shadow:var(--shadow-lg);
+    }
+    
+    .school-name{
+      font-size:clamp(18px, 4vw, 24px);
+      font-weight:800;
+      margin-bottom:4px;
+      text-shadow:0 2px 4px rgba(0,0,0,0.1);
+      letter-spacing:-0.5px;
+    }
+    
+    .bar h1{
+      font-size:clamp(14px, 3.5vw, 18px);
+      margin:0;
+      font-weight:600;
+      letter-spacing:0.5px;
+      opacity:0.95;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:12px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:var(--shadow-lg);
+      padding:20px;
+      border:1px solid var(--border);
+      margin-bottom:16px;
+    }
+
+    .main-tabs{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+    
+    .main-tabs button{
+      padding:14px 10px;
+      border-radius:12px;
+      border:2px solid transparent;
+      background:var(--card);
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      transition:all 0.3s;
+      box-shadow:var(--shadow);
+      color:var(--text);
+    }
+    
+    .main-tabs button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.3);
+    }
+    
+    .main-tabs button.active{
+      background:var(--bg-gradient);
+      color:#fff;
+      box-shadow:0 8px 16px -4px rgba(99,102,241,0.5);
+    }
+
+    .sub-tabs{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:8px;
+      margin-bottom:16px;
+      background:var(--brand-light);
+      padding:8px;
+      border-radius:12px;
+    }
+
+    .sub-tabs button{
+      padding:10px 8px;
+      border-radius:8px;
+      border:none;
+      background:white;
+      cursor:pointer;
+      font-weight:600;
+      font-size:12px;
+      transition:all 0.3s;
+      color:var(--text);
+    }
+
+    .sub-tabs button.active{
+      background:var(--brand);
+      color:white;
+      box-shadow:0 4px 8px rgba(99,102,241,0.3);
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    
+    .label-text{
+      font-weight:600;
+      font-size:12px;
+      color:var(--text);
+      margin-bottom:6px;
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    input[type="text"],input[type="password"],input[type="number"],input[type="tel"],select{
+      padding:12px 14px;
+      border-radius:10px;
+      border:2px solid var(--border);
+      font-size:14px;
+      width:100%;
+      transition:all 0.2s;
+      background:var(--card);
+      font-family:inherit;
+    }
+    
+    input:focus,select:focus{
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-light);
+    }
+
+    .select-all-bar{
+      background:var(--brand-light);
+      border:2px solid var(--brand);
+      border-radius:10px;
+      padding:14px 16px;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .select-all-bar input[type="checkbox"]{
+      width:20px;
+      height:20px;
+      cursor:pointer;
+    }
+
+    .select-all-bar label{
+      font-weight:700;
+      font-size:14px;
+      color:var(--brand);
+      cursor:pointer;
+      flex:1;
+    }
+
+    .selected-count{
+      background:var(--brand);
+      color:white;
+      padding:4px 12px;
+      border-radius:16px;
+      font-weight:700;
+      font-size:12px;
+    }
+
+    .class-total-badge{
+      background:var(--ok);
+      color:white;
+      padding:6px 14px;
+      border-radius:20px;
+      font-weight:700;
+      font-size:13px;
+      margin-bottom:12px;
+      display:inline-block;
+    }
+
+    .list{
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      margin-bottom:80px;
+      box-shadow:var(--shadow);
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .row-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 12px; /* ✅ V12.5: Reduced from 16px to 10px for compact design */
+      min-height:64px; /* ✅ V12.5: Reduced from 80px to 64px (fits 2 buttons) */
+      border-top:1px solid var(--border);
+      transition:all 0.2s;
+      gap:10px;
+    }
+    
+    .row-item:first-child{border-top:none}
+    
+    .row-item:hover{
+      background:var(--brand-light);
+    }
+
+    .row-item.selected{
+      background:#d1fae5;
+    }
+    
+    /* 🔴 V10.25: Light pastel colors - easy on eyes */
+    /* ✅ V12.2: SIMPLIFIED - All leaves have same light red background */
+    .row-item.on-leave-school,
+    .row-item.on-leave-sick,
+    .row-item.on-leave-casual{
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+      color: #7F1D1D !important;
+      border-left: 4px solid #DC2626;
+    }
+    .row-item.on-leave-school .name,
+    .row-item.on-leave-school .meta,
+    .row-item.on-leave-sick .name,
+    .row-item.on-leave-sick .meta,
+    .row-item.on-leave-casual .name,
+    .row-item.on-leave-casual .meta{
+      color: #7F1D1D !important;
+    }
+    .row-item.on-leave-school:hover,
+    .row-item.on-leave-sick:hover,
+    .row-item.on-leave-casual:hover{
+      background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
+      box-shadow: 0 8px 16px rgba(220, 38, 38, 0.2);
+    }
+    
+    .student-info{
+      flex:1;
+      min-width:0;
+    }
+    
+    /* ✅ V12.12: UPDATED - Left side with VERTICAL stack (tick/cross ABOVE checkbox) */
+    .left-icons {
+      display:flex;
+      flex-direction:column; /* Vertical stack */
+      align-items:center;
+      gap:2px; /* Small gap between tick/cross and checkbox */
+      font-size:16px;
+      margin-right:8px;
+      justify-content:center;
+    }
+    
+    /* ✅ V12.5: UPDATED - Right side buttons + menu horizontal layout */
+    .right-buttons {
+      display:flex;
+      flex-direction:row; /* ✅ V12.5: Changed to horizontal to put menu on right */
+      align-items:center;
+      gap:4px; /* ✅ V12.5: Smaller gap for compact design */
+      flex-shrink:0;
+    }
+    
+    /* ✅ V12.5: NEW - Vertical button stack container */
+    .button-stack {
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    
+    /* ✅ V12.5: UPDATED - Same size for all buttons/badges */
+    .attendance-btn,
+    .leave-badge-large {
+      min-width:68px; /* ✅ V12.5: Same size for both */
+      min-height:26px; /* ✅ V12.5: Reduced for compact design */
+      padding:4px 8px; /* ✅ V12.5: Smaller padding */
+      font-size:10px;
+      font-weight:700;
+      border-radius:6px;
+      text-align:center;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:all 0.2s;
+      box-shadow:0 1px 3px rgba(0,0,0,0.1); /* ✅ V12.5: Lighter shadow */
+    }
+    
+    /* ✅ V12.18: Casual/Sick badges - narrower to match new design */
+    .leave-badge-casual {
+      background:#93C5FD !important; /* Light blue */
+      color:#1E3A8A !important; /* Dark blue text */
+      border:2px solid #DC2626 !important; /* Red outline */
+      /* ✅ V12.18: Narrower width for mobile */
+      min-width:70px !important;
+      max-width:70px !important;
+      width:70px !important;
+      min-height:35px !important;
+      height:35px !important;
+      padding:5px 6px !important;
+      font-size:9px !important;
+      line-height:1.2 !important;
+      white-space:nowrap !important;
+    }
+    
+    .leave-badge-sick {
+      background:#FDE68A !important; /* Light yellow */
+      color:#78350F !important; /* Dark brown text */
+      border:2px solid #DC2626 !important; /* Red outline */
+      /* ✅ V12.18: Narrower width for mobile */
+      min-width:70px !important;
+      max-width:70px !important;
+      width:70px !important;
+      min-height:35px !important;
+      height:35px !important;
+      padding:5px 6px !important;
+      font-size:9px !important;
+      line-height:1.2 !important;
+      white-space:nowrap !important;
+    }
+    
+    /* ✅ V12.18: Leave School badge - 2 LINES (narrower width) */
+    .leave-badge-school {
+      background:white !important; /* White background */
+      color:#DC2626 !important; /* Red text */
+      border:3px solid #DC2626 !important; /* THICK RED border */
+      font-weight:700 !important;
+      /* ✅ V12.18: 2-line design - narrower width, taller height */
+      min-width:65px !important; /* Reduced from 85px */
+      max-width:65px !important;
+      width:65px !important;
+      min-height:38px !important; /* Increased for 2 lines */
+      height:38px !important;
+      padding:4px 6px !important;
+      font-size:9px !important;
+      line-height:1.3 !important;
+      white-space:normal !important; /* Allow wrap */
+      overflow:hidden !important;
+      text-overflow:ellipsis !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      text-align:center !important;
+    }
+    
+    .attendance-btn.present {
+      background:#10b981;
+      color:white;
+      border:none;
+      /* ✅ V12.18: Taller + Narrower for mobile space */
+      min-width:70px !important;
+      max-width:70px !important;
+      width:70px !important;
+      min-height:35px !important;
+      height:35px !important;
+      padding:5px 6px !important;
+      font-size:10px !important;
+      line-height:1.2 !important;
+    }
+    
+    .attendance-btn.absent {
+      background:#ef4444;
+      color:white;
+      border:none;
+      /* ✅ V12.18: Taller + Narrower for mobile space */
+      min-width:70px !important;
+      max-width:70px !important;
+      width:70px !important;
+      min-height:35px !important;
+      height:35px !important;
+      padding:5px 6px !important;
+      font-size:10px !important;
+      line-height:1.2 !important;
+    }
+    
+    .attendance-btn:hover {
+      transform:translateY(-1px);
+      box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .name{
+      font-weight:700;
+      font-size:14px;
+      color:var(--text);
+      margin-bottom:2px;
+    }
+    
+    .meta{
+      font-size:9px; /* ✅ V12.18: Reduced from 11px for mobile space */
+      color:var(--muted);
+      font-weight:500;
+    }
+
+    .student-checkbox{
+      width:20px;
+      height:20px;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    .fab{
+      position:fixed;
+      bottom:16px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:100;
+      width:calc(100% - 24px);
+      max-width:400px;
+    }
+    
+    .fab button{
+      width:100%;
+      padding:14px 24px;
+      border-radius:50px;
+      font-size:15px;
+      font-weight:700;
+      background:var(--bg-gradient);
+      color:#fff;
+      border:none;
+      box-shadow:0 10px 25px -5px rgba(99,102,241,0.5);
+      cursor:pointer;
+      transition:all 0.3s;
+    }
+    
+    .fab button:hover{
+      transform:translateY(-3px);
+      box-shadow:0 15px 30px -5px rgba(99,102,241,0.6);
+    }
+
+    .fab button:disabled{
+      opacity:0.6;
+      cursor:not-allowed;
+    }
+
+    .upload-toast{
+      position:fixed;
+      top:80px;
+      right:12px;
+      background:white;
+      border:2px solid var(--brand);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:var(--shadow-lg);
+      z-index:90;
+      min-width:280px;
+      animation:slideIn 0.3s ease;
+    }
+    
+    /* ✅ V12.5: NEW - Small bubble summary (top-right corner) */
+    .summary-bubble {
+      position:fixed;
+      top:80px;
+      right:12px;
+      background:white;
+      border:2px solid #10b981;
+      border-radius:12px;
+      padding:12px 16px;
+      box-shadow:0 4px 12px rgba(16,185,129,0.3);
+      z-index:95;
+      min-width:200px;
+      max-width:300px;
+      animation:slideIn 0.3s ease;
+      font-size:12px;
+    }
+    
+    .summary-bubble-header {
+      font-weight:700;
+      font-size:13px;
+      margin-bottom:8px;
+      color:#10b981;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    
+    .summary-bubble-row {
+      display:flex;
+      justify-content:space-between;
+      padding:3px 0;
+      font-size:11px;
+    }
+
+    .error-banner{
+      background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color:white;
+      padding:20px;
+      border-radius:12px;
+      margin:16px 0;
+      box-shadow:0 8px 16px rgba(239,68,68,0.3);
+    }
+
+    .success-banner{
+      background:linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color:white;
+      padding:20px;
+      border-radius:12px;
+      margin:16px 0;
+      box-shadow:0 8px 16px rgba(16,185,129,0.3);
+    }
+
+    @keyframes slideIn{
+      from{transform:translateX(400px);opacity:0;}
+      to{transform:translateX(0);opacity:1;}
+    }
+
+    .upload-progress-bar{
+      width:100%;
+      height:8px;
+      background:var(--border);
+      border-radius:4px;
+      overflow:hidden;
+      margin:10px 0;
+    }
+
+    .upload-progress-fill{
+      height:100%;
+      background:var(--brand);
+      transition:width 0.3s;
+    }
+
+    .hidden{display:none!important}
+
+    .login-container {
+      text-align:center;
+      max-width:400px;
+      margin:40px auto;
+    }
+    
+    .login-icon {
+      width:70px;
+      height:70px;
+      margin:0 auto 16px;
+      background:var(--bg-gradient);
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:36px;
+      box-shadow:var(--shadow-lg);
+    }
+
+    .btn-primary{
+      padding:10px 20px;
+      border-radius:8px;
+      border:none;
+      background:var(--brand);
+      color:white;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      transition:all 0.3s;
+    }
+
+    .btn-primary:hover{
+      background:var(--brand-hover);
+      transform:translateY(-2px);
+    }
+
+    .btn-success{
+      background:var(--ok);
+    }
+
+    .btn-danger{
+      background:var(--bad);
+    }
+
+    .loading-spinner {
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--brand);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .autocomplete-container {
+      position: relative;
+    }
+
+    .autocomplete-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 3px solid var(--brand);
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 15px 35px -5px rgba(99,102,241,0.4);
+      display: none;
+    }
+
+    .autocomplete-dropdown.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .autocomplete-item {
+      padding: 16px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid #f1f5f9;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: white;
+    }
+
+    .autocomplete-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 14px 14px;
+    }
+
+    .autocomplete-item:hover {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      transform: translateX(5px);
+      box-shadow: inset 4px 0 0 var(--brand);
+    }
+
+    .autocomplete-item-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .autocomplete-item-avatar.male {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .autocomplete-item-avatar.female {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    }
+
+    .autocomplete-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .autocomplete-item-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .autocomplete-item-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .autocomplete-item-badge {
+      background: var(--brand-light);
+      color: var(--brand);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .autocomplete-empty {
+      padding: 30px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .autocomplete-empty::before {
+      content: "🔍";
+      display: block;
+      font-size: 40px;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    .student-detail-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--brand);
+    }
+
+    .student-detail-row {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .student-detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .student-detail-label {
+      font-weight: 700;
+      color: var(--text);
+      min-width: 100px;
+    }
+
+    .student-detail-value {
+      flex: 1;
+      color: var(--muted);
+    }
+
+    .mobile-edit-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .mobile-edit-input {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 2px solid var(--brand);
+      font-size: 12px;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 700;
+      font-size: 11px;
+      cursor:pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-edit {
+      background: var(--brand);
+      color: white;
+    }
+
+    .btn-save {
+      background: var(--ok);
+      color: white;
+    }
+
+    .btn-cancel {
+      background: var(--muted);
+      color: white;
+    }
+
+    /* SYSTEM TAB STYLES */
+    .system-section-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .system-section-card:hover {
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+      transform: translateY(-2px);
+    }
+
+    .system-section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--brand);
+    }
+
+    .system-section-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--bg-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 6px rgba(99,102,241,0.3);
+    }
+
+    .system-section-title {
+      flex: 1;
+    }
+
+    .system-section-title h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .system-section-title p {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .system-info-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .system-info-item {
+      background: var(--brand-light);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+
+    .system-info-item:hover {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      transform: translateX(3px);
+    }
+
+    .system-info-item-icon {
+      font-size: 20px;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .system-info-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .system-info-item-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .system-info-item-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .system-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .system-status-badge.error {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .software-link-item {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s;
+    }
+
+    .software-link-item:hover {
+      border-color: var(--brand);
+      box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+    }
+
+    .software-link-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--bg-gradient);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .software-link-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .software-link-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .software-link-value {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: monospace;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+
+    .btn-copy {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 2px solid var(--brand);
+      background: white;
+      color: var(--brand);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-copy:hover {
+      background: var(--brand);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(99,102,241,0.3);
+    }
+
+    .btn-copy:active {
+      transform: scale(0.95);
+    }
+
+    .btn-copy.copied {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: white;
+    }
+
+    .copy-toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ok);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 10px 25px rgba(16,185,129,0.3);
+      z-index: 1000;
+      animation: slideUp 0.3s ease;
+      display: none;
+    }
+
+    .copy-toast.show {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* ROZNAMCHA TABLE STYLES */
+    .roznamcha-wrapper {
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      border: 2px solid #333;
+      margin-bottom: 20px;
+    }
+
+    .roznamcha-title-bar {
+      background: white;
+      color: #000;
+      padding: 16px;
+      text-align: center;
+      font-family: 'Noto Nastaliq Urdu', serif;
+      font-size: 24px;
+      font-weight: 700;
+      direction: rtl;
+      border-bottom: 2px solid #333;
+    }
+
+    .roznamcha-refresh-info {
+      background: var(--brand-light);
+      padding: 8px;
+      text-align: center;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-bottom: 2px solid #333;
+    }
+
+    .live-led {
+      width: 10px;
+      height: 10px;
+      background: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
+
+    .live-blink {
+      background: #22c55e !important;
+    }
+
+    .roznamcha-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: white;
+    }
+
+    .roznamcha-table th,
+    .roznamcha-table td {
+      border: 2px solid #333;
+      padding: 4px 4px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .roznamcha-table .day-header {
+      background: white;
+      font-weight: 700;
+      font-size: 18px;
+      color: #dc2626;
+    }
+
+    .roznamcha-table .class-header {
+      background: #444;
+      color: white;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+
+    .roznamcha-table .section-header {
+      background: white;
+      color: #dc2626;
+      font-weight: 700;
+      font-family: 'Noto Nastaliq Urdu', serif;
+      direction: rtl;
+      font-size: 20px;
+      padding: 12px 6px;
+    }
+
+    .roznamcha-table .sub-header {
+      background: #666;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .roznamcha-table .class-name-cell {
+      background: white;
+      text-align: left;
+      font-weight: 700;
+      padding: 2px 4px;
+      padding-left: 8px;
+      font-size: 15px;
+      width: 170px;
+    }
+
+    .roznamcha-table .class-name-urdu {
+      color: #dc2626;
+      font-family: 'Noto Nastaliq Urdu', serif;
+      direction: rtl;
+      font-size: 15px;
+      font-weight: 600;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .roznamcha-table .total-row {
+      background: #444;
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .roznamcha-table .data-cell { font-weight:700; font-size:17px; }
+
+    .roznamcha-footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+    }
+
+    .roznamcha-footer-cell {
+      padding: 14px;
+      text-align: center;
+      font-weight: 700;
+      border-right: 2px solid #333;
+      font-size: 15px;
+      border-top: 2px solid #333;
+    }
+
+    .roznamcha-footer-cell:last-child {
+      border-right: none;
+    }
+
+    .roznamcha-footer-date {
+      background: white;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .roznamcha-footer-percent { background:white; color:#dc2626; font-size:30px; font-weight:900; }
+
+    .roznamcha-footer-label {
+      background: white;
+      color: #dc2626;
+      font-family: 'Noto Nastaliq Urdu', serif;
+      direction: rtl;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* Buttons Container at Bottom */
+    .roznamcha-buttons-container {
+      background: white;
+      border-top: 2px solid #333;
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .roznamcha-screenshot-btn,
+    .roznamcha-whatsapp-btn {
+      flex: 1;
+      max-width: 180px;
+      background: white;
+      color: #333;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .roznamcha-screenshot-btn {
+      border-color: #3b82f6;
+    }
+
+    .roznamcha-whatsapp-btn {
+      border-color: #25D366;
+    }
+
+    .roznamcha-screenshot-btn::before,
+    .roznamcha-whatsapp-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .roznamcha-whatsapp-btn::before {
+      background: rgba(37, 211, 102, 0.1);
+    }
+
+    .roznamcha-screenshot-btn:hover::before,
+    .roznamcha-whatsapp-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .roznamcha-screenshot-btn:hover,
+    .roznamcha-whatsapp-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .roznamcha-screenshot-btn:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .roznamcha-whatsapp-btn:hover {
+      border-color: #1DA851;
+      background: #f0fdf4;
+    }
+
+    .roznamcha-screenshot-btn:active,
+    .roznamcha-whatsapp-btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .roznamcha-screenshot-btn .btn-icon {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .roznamcha-whatsapp-btn .btn-icon {
+      background: linear-gradient(135deg, #25D366 0%, #1DA851 100%);
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    }
+
+    .roznamcha-screenshot-btn:hover .btn-icon,
+    .roznamcha-whatsapp-btn:hover .btn-icon {
+      transform: scale(1.1);
+    }
+
+    .btn-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+      text-align: center;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @media (max-width: 480px) {
+      .roznamcha-buttons-container {
+        padding: 12px;
+        gap: 10px;
+      }
+      .roznamcha-screenshot-btn,
+      .roznamcha-whatsapp-btn {
+        max-width: none;
+        padding: 12px 16px;
+      }
+      .btn-icon {
+        width: 42px;
+        height: 42px;
+      }
+      .btn-text {
+        font-size: 12px;
+      }
+    }
+
+    .roznamcha-loading {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 16px;
+    }
+
+    .roznamcha-error {
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      color: #dc2626;
+    }
+
+    .roznamcha-error h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .wrap { padding:20px; }
+      .toolbar { grid-template-columns:1fr 1fr; }
+      .main-tabs { grid-template-columns:repeat(4, 1fr); }
+      .system-info-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 767px) {
+      .upload-toast { right:12px; left:12px; min-width:unset; }
+      .software-link-item { flex-direction: column; align-items: stretch; }
+      .btn-copy { width: 100%; justify-content: center; }
+      .roznamcha-table { font-size: 11px; }
+      .roznamcha-table th, .roznamcha-table td { padding: 6px 3px; }
+      .roznamcha-title-bar { font-size: 16px; padding: 12px; }
+    }
+  
+.class-name-mixed {
+  font-size:16px;
+  font-weight:800;
+  color:#000000; /* English name black */
+}
+.urdu-inline {
+  font-family:'Noto Nastaliq Urdu', serif;
+  direction:rtl;
+  letter-spacing:0.5px;
+  font-size:18px;
+  font-weight:700;
+  color:#d32f2f; /* Urdu name deep red */
+}
+
+
+/* Responsive mobile optimization */
+@media (max-width: 600px) {
+  .roznamcha-table .class-name-cell {
+    width:120px !important;
+    font-size:16px !important;
+    padding:6px !important;
+    line-height:1.2 !important;
+  }
+  .class-name-mixed {
+    font-size:16px !important;
+    white-space:nowrap !important;
+  }
+  .urdu-inline {
+    font-size:16px !important;
+  }
+  .roznamcha-table td, .roznamcha-table th {
+    padding:4px !important;
+  }
+}
+
+
+/* ----- Mobile Horizontal Scroll Fix (v10.11) ----- */
+.roznamcha-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.roznamcha-table {
+  min-width: 950px !important;
+}
+
+.class-name-mixed {
+  white-space: nowrap !important;
+}
+
+
+    /* Leave menu / 3-dot UI */
+    .student-name-main {
+      font-weight:700;
+      font-size:13px; /* ✅ V12.18: Reduced from 15px for mobile space */
+      color:var(--text);
+      margin-bottom:2px; /* Reduced from 4px */
+    }
+    /* Three-dot button - positioned on right side */
+    .leave-menu-trigger {
+      font-size:22px;
+      padding:4px 8px;
+      cursor:pointer;
+      color:var(--muted);
+      transition:all 0.2s;
+    }
+    .leave-menu-trigger:hover {
+      color:var(--brand);
+      transform:scale(1.15);
+    }
+    .leave-menu-trigger:active {
+      transform:scale(0.95);
+    }
+
+    /* Leave Modal - Fixed backdrop issue */
+    .leave-modal {
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,0.75);
+      backdrop-filter:blur(3px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      animation:fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; }
+      to { opacity:1; }
+    }
+    .leave-modal.hidden {
+      display:none;
+    }
+    
+    /* Modal Card - Compact and Responsive - 🔴 V10.23: Reduced size */
+    .leave-modal-card {
+      background:#ffffff;
+      border-radius:16px;
+      padding:0;
+      width:90%;
+      max-width:340px; /* ✅ V12.15: Reduced from 360px for better proportions */
+      max-height:70vh;
+      overflow-y:auto;
+      box-shadow:0 20px 40px rgba(0,0,0,0.3);
+      animation:slideUp 0.3s ease;
+    }
+    @media (max-width: 480px) {
+      .leave-modal-card {
+        width:95%;
+        max-width:320px; /* ✅ V12.15: Reduced from 340px */
+        max-height:65vh;
+      }
+    }
+    @keyframes slideUp {
+      from { transform:translateY(30px); opacity:0; }
+      to { transform:translateY(0); opacity:1; }
+    }
+    
+    /* Modal Header - Beautiful student name display - 🔴 V10.23: Compact */
+    .leave-modal-card h3 {
+      margin:0;
+      padding:16px 18px 14px 18px; /* 🔴 Reduced padding */
+      font-size:16px; /* 🔴 Reduced from 18px */
+      font-weight:800;
+      color:#fff;
+      background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius:16px 16px 0 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      text-shadow:0 2px 4px rgba(0,0,0,0.15);
+      letter-spacing:0.5px;
+    }
+    .leave-modal-card p {
+      margin:0;
+      padding:14px 18px; /* 🔴 Reduced padding */
+      font-size:18px; /* 🔴 Reduced from 20px */
+      font-weight:800;
+      color:#1e293b;
+      background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border-bottom:3px solid #3b82f6;
+      letter-spacing:0.5px;
+      text-align:center;
+      text-transform:capitalize;
+      text-shadow:0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    /* Leave Options List - 🔴 V10.23: Compact */
+    .leave-modal-list {
+      padding:12px 16px; /* 🔴 Reduced padding */
+      display:grid;
+      gap:8px;
+    }
+    
+    /* Leave Option Tabs - Each with distinct color, NO sub-descriptions */
+    .leave-option-row {
+      display:block;
+      padding:10px 12px; /* 🔴 Reduced padding */
+      border-radius:10px;
+      border:2px solid transparent;
+      cursor:pointer;
+      transition:all 0.3s;
+      position:relative;
+    }
+    
+    /* Leave School - Red */
+    .leave-option-row:nth-child(1) {
+      background:linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border-color:#fca5a5;
+    }
+    .leave-option-row:nth-child(1):hover {
+      border-color:#ef4444;
+      box-shadow:0 4px 12px rgba(239,68,68,0.2);
+      transform:translateX(4px);
+    }
+    .leave-option-row:nth-child(1) input[type="radio"]:checked ~ div {
+      color:#dc2626;
+    }
+    
+    /* Casual Leave - Blue */
+    .leave-option-row:nth-child(2) {
+      background:linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+      border-color:#bfdbfe;
+    }
+    .leave-option-row:nth-child(2):hover {
+      border-color:#3b82f6;
+      box-shadow:0 4px 12px rgba(59,130,246,0.2);
+      transform:translateX(4px);
+    }
+    .leave-option-row:nth-child(2) input[type="radio"]:checked ~ div {
+      color:#2563eb;
+    }
+    
+    /* Sick Leave - Orange */
+    .leave-option-row:nth-child(3) {
+      background:linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+      border-color:#fed7aa;
+    }
+    .leave-option-row:nth-child(3):hover {
+      border-color:#f59e0b;
+      box-shadow:0 4px 12px rgba(245,158,11,0.2);
+      transform:translateX(4px);
+    }
+    .leave-option-row:nth-child(3) input[type="radio"]:checked ~ div {
+      color:#d97706;
+    }
+    
+    /* 🔴 V10.23: Range option removed - no longer needed since all leaves support date ranges */
+    
+    .leave-option-row input[type="radio"] {
+      display:none;
+    }
+    
+    .leave-option-row input[type="radio"]:checked + div {
+      font-weight:700;
+    }
+    
+    .leave-option-main {
+      font-size:14px;
+      font-weight:700;
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .leave-option-main::before {
+      content:'○';
+      font-size:18px;
+      color:var(--muted);
+    }
+    .leave-option-row input[type="radio"]:checked + div .leave-option-main::before {
+      content:'●';
+      color:currentColor;
+    }
+    
+    /* Form Fields - 🔴 V10.23: Compact */
+    .leave-form-fields {
+      padding:0 16px 12px 16px; /* 🔴 Reduced padding */
+      border-top:2px solid var(--border);
+      padding-top:12px; /* 🔴 Reduced */
+    }
+    .leave-field {
+      margin-bottom:8px; /* 🔴 Reduced from 10px */
+    }
+    .leave-field:last-child {
+      margin-bottom:0;
+    }
+    .leave-field input[type="date"] {
+      width:100%;
+      padding:9px 11px; /* 🔴 Reduced padding */
+      border-radius:8px;
+      border:2px solid var(--border);
+      font-size:13px;
+      font-family:inherit;
+      transition:all 0.2s;
+    }
+    .leave-field input[type="date"]:focus {
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-light);
+    }
+    .leave-field textarea {
+      width:100%;
+      padding:9px 11px; /* 🔴 Reduced padding */
+      border-radius:8px;
+      border:2px solid var(--border);
+      font-size:13px;
+      font-family:inherit;
+      resize:vertical;
+      min-height:60px; /* 🔴 Reduced from 70px */
+      transition:all 0.2s;
+    }
+    .leave-field textarea:focus {
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-light);
+    }
+    .leave-field textarea::placeholder {
+      color:var(--muted);
+      font-style:italic;
+    }
+    
+    /* Modal Actions - 🔴 V10.23: Compact */
+    .leave-modal-actions {
+      display:flex;
+      gap:10px;
+      padding:12px 16px; /* 🔴 Reduced padding */
+      border-top:2px solid var(--border);
+      background:#f8fafc;
+      border-radius:0 0 16px 16px;
+    }
+    .leave-modal-actions button {
+      flex:1;
+      padding:10px 16px; /* 🔴 Reduced padding */
+      border-radius:8px;
+      border:none;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      transition:all 0.3s;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    .leave-modal-actions .btn-secondary {
+      background:#ef4444;
+      color:white;
+    }
+    .leave-modal-actions .btn-secondary:hover {
+      background:#dc2626;
+      transform:translateY(-2px);
+      box-shadow:0 4px 12px rgba(239,68,68,0.3);
+    }
+    .leave-modal-actions .btn-primary {
+      background:#10b981;
+      color:white;
+    }
+    .leave-modal-actions .btn-primary:hover {
+      background:#059669;
+      transform:translateY(-2px);
+      box-shadow:0 4px 12px rgba(16,185,129,0.3);
+    }
+    
+    /* ✅ V12.2: NEW LEAVE BADGE DESIGN - Colored blocks inspired by infographic templates */
+    .leave-chip {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 12px;
+      border-radius:12px;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      margin-left:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.15);
+      border:2px solid white;
+    }
+
+    /* v14.3 – status pills & leave pill overrides */
+    .status-badge-present{
+      color:#16A34A;
+      border-color:#16A34A;
+    }
+    .status-badge-absent{
+      color:#DC2626;
+      border-color:#DC2626;
+    }
+    .leave-badge-school{
+      background:white !important;
+      color:#DC2626 !important;
+      border-color:#DC2626 !important;
+    }
+    .leave-badge-sick{
+      background:white !important;
+      color:#EA580C !important;
+      border-color:#EA580C !important;
+    }
+    .leave-badge-casual{
+      background:white !important;
+      color:#2563EB !important;
+      border-color:#2563EB !important;
+    }
+    .leave-badge-absent{
+      background:white !important;
+      color:#DC2626 !important;
+      border-color:#DC2626 !important;
+    }
+
+    
+    /* ✅ V12.9: OLD badge definitions removed - using new ones from line ~323 */
+
+    /* ✅ V12.19: RESPONSIVE DESIGN - Mobile vs Desktop */
+    
+    /* Mobile - Smaller fonts (default) */
+    .student-name-main {
+      font-size: 13px !important; /* ✅ V12.19.1: Increased from 12px */
+    }
+    
+    .meta {
+      font-size: 9px !important;
+    }
+    
+    /* Desktop - Larger fonts */
+    @media (min-width: 768px) {
+      .student-name-main {
+        font-size: 16px !important; /* ✅ V12.19.1: Increased from 15px */
+      }
+      
+      .meta {
+        font-size: 11px !important;
+      }
+      
+      .row-item {
+        padding: 12px 16px !important;
+      }
+    }
+
+  
+/* v14.6 badge style (rounded rectangle) */
+.badge{
+  display:inline-block;
+  padding:1px 5px;
+  font-size:9px;
+  font-weight:600;
+  border:2px solid;
+  border-radius:6px;
+  background-color:white;
+  color:black;
+  min-width:60px;
+  text-align:center;
+}
+.badge-present{border-color:#16A34A;}
+.badge-absent{border-color:#F87171;}
+.badge-casual{border-color:#3B82F6;}
+.badge-sick{border-color:#FACC15;}
+.badge-leaveschool{border-color:#7F1D1D !important;}
+
+/* ===== V40.03: Leave School Toggle Switch Styles ===== */
+.leave-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.leave-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.leave-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ef4444;
+  transition: .4s;
+  border-radius: 34px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.leave-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .leave-toggle-slider {
+  background-color: #10b981;
+}
+
+input:checked + .leave-toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.leave-toggle-slider:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+</style>
+</head>
+<body>
+  <header>
+    <div class="school-name">🎓 GPS Sheinwal (Shamaskay)</div>
+    <div class="bar"><h1>RFID Attendance Management System</h1></div>
+  </header>
+  
+  <div class="wrap">
+    <!-- Leave menu modal -->
+    <div id="leaveMenuModal" class="leave-modal hidden">
+      <div class="leave-modal-card">
+        <h3>🏖️ Leave Details</h3>
+        <p id="leaveMenuStudentLabel" style="margin-bottom:4px;"></p>
+        <p id="leaveMenuCurrentLeave" style="margin-bottom:10px;font-size:12px;color:var(--muted);"></p>
+
+        
+        <!-- ✅ V12.19: NEW - All attendance/leave options as clickable badges -->
+        <div class="leave-modal-list">
+          <!-- Present Badge -->
+          <label class="leave-option-row" style="background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);border-color:#6ee7b7;cursor:pointer;" onclick="markAttendanceFromMenu('present')">
+            <div>
+              <div class="leave-option-main" style="color:#065f46;">✅ Present</div>
+            </div>
+          </label>
+          
+          <!-- Absent Badge -->
+          <label class="leave-option-row" style="background:linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);border-color:#fca5a5;cursor:pointer;" onclick="markAttendanceFromMenu('absent')">
+            <div>
+              <div class="leave-option-main" style="color:#7f1d1d;">❌ Absent</div>
+            </div>
+          </label>
+          
+          <!-- Leave School Badge -->
+          <label class="leave-option-row" style="background:linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);border-color:#fca5a5;">
+            <input type="radio" name="leaveType" value="leave_school">
+            <div>
+              <div class="leave-option-main" style="color:#7f1d1d;">🎓 Leave School</div>
+            </div>
+          </label>
+
+          <!-- Casual Leave Badge -->
+          <label class="leave-option-row" style="background:linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);border-color:#93c5fd;">
+            <input type="radio" name="leaveType" value="casual">
+            <div>
+              <div class="leave-option-main" style="color:#1e3a8a;">🏖️ Casual Leave</div>
+            </div>
+          </label>
+
+          <!-- Sick Leave Badge -->
+          <label class="leave-option-row" style="background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);border-color:#fcd34d;">
+            <input type="radio" name="leaveType" value="sick">
+            <div>
+              <div class="leave-option-main" style="color:#78350f;">🤒 Sick Leave</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Date fields and comment box -->
+        <div class="leave-form-fields">
+          <div class="leave-field">
+            <input type="date" id="leaveFromDate">
+          </div>
+          <div class="leave-field">
+            <input type="date" id="leaveToDate">
+          </div>
+          <div class="leave-field">
+            <textarea id="leaveComment" placeholder="Add your comments here..."></textarea>
+          </div>
+        </div>
+
+        <div class="leave-modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeLeaveMenu()">Close</button>
+          <button type="button" class="btn-primary" onclick="submitLeaveForm()">Save</button>
+        </div>
+      </div>
+    </div>
+<!-- LOGIN VIEW -->
+    <section id="viewLogin" class="card login-container">
+      <div class="login-icon">🔐</div>
+      <div style="font-size:24px;font-weight:800;margin-bottom:6px;color:var(--text);">Secure Login</div>
+      <div style="color:var(--muted);margin-bottom:20px;font-size:14px;">Enter your password to continue</div>
+      <div id="loginDateTime" style="color:var(--muted);margin-bottom:16px;font-size:12px;"></div>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="20" placeholder="Enter Password" 
+        style="width:90%;padding:12px 18px;text-align:center;letter-spacing:3px;margin-bottom:16px;font-size:16px;" />
+      <button id="loginBtn" style="padding:12px 36px;border:none;border-radius:10px;background:var(--bg-gradient);
+        color:white;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(99,102,241,0.4);transition:all 0.3s;">
+        Login →
+      </button>
+      <div id="loginError" style="margin-top:14px;color:var(--bad);font-weight:600;font-size:13px;"></div>
+    </section>
+
+    <!-- MAIN VIEW -->
+    <section id="viewMain" class="hidden">
+      <!-- Data Load Status -->
+      <div id="dataLoadStatus"></div>
+
+      <!-- Main Tabs -->
+      <div class="main-tabs">
+        <button id="tabAttendance" class="active">📋 Attendance</button>
+        <button id="tabReports">📄 Reports</button>
+        <button id="tabRoznamcha">📊 Roznamcha</button>
+        <button id="tabSystemInfo">🔧 System</button>
+      </div>
+
+      <!-- ATTENDANCE SECTION -->
+      <div id="sectionAttendance">
+        <!-- Sub Tabs -->
+        <div class="sub-tabs">
+          <button id="subTabManual" class="active">✍️ Manual</button>
+          <button id="subTabQR">📷 QR Scan</button>
+          <button id="subTabStudentInfo">👤 Student Info</button>
+        </div>
+
+        <!-- Manual Attendance -->
+        <div id="subSectionManual">
+          <div class="toolbar">
+            <div>
+              <span class="label-text">📚 Select Class</span>
+              <select id="classSelect">
+                <option value="">All Classes</option>
+              </select>
+            </div>
+            <div>
+              <span class="label-text">🔍 Search Student</span>
+              <input type="text" id="searchInput" placeholder="Search by name, father name or enrollment..." />
+            </div>
+          </div>
+
+          <div id="classTotalBadge"></div>
+
+          <div class="select-all-bar">
+            <input type="checkbox" id="selectAllCheckbox" />
+            <label for="selectAllCheckbox">Select All (Present)</label>
+            <span class="selected-count" id="selectedCount">0 Selected</span>
+          </div>
+
+          <div id="studentList" class="list"></div>
+          
+          <div class="fab" id="submitFab">
+            <button id="submitBtn">✓ Submit Attendance</button>
+          </div>
+        </div>
+
+        <!-- QR Scan -->
+        <div id="subSectionQR" class="hidden">
+          <div class="card" style="text-align:center;padding:60px 20px;">
+            <div style="font-size:48px;margin-bottom:16px;">📷</div>
+            <h3 style="color:var(--brand);margin-bottom:12px;">QR Code Scanner</h3>
+            <p style="color:var(--muted);font-size:14px;">QR Code attendance scanning feature coming soon...</p>
+          </div>
+        </div>
+
+        <!-- Student Information -->
+        <div id="subSectionStudentInfo" class="hidden">
+          <div class="toolbar">
+            <div>
+              <span class="label-text">🔍 Search Student</span>
+              <div class="autocomplete-container">
+                <input type="text" id="singleStudentSearch" placeholder="Enter UID, Name, Father Name or Enrollment..." />
+                <div id="studentSearchDropdown" class="autocomplete-dropdown"></div>
+              </div>
+            </div>
+          </div>
+          <div id="studentDetailResult"></div>
+        </div>
+      </div>
+
+      <!-- REPORTS SECTION -->
+      <div id="sectionReports" class="hidden">
+        <div class="card">
+          <h3 style="color:var(--brand);margin-bottom:16px;font-size:18px;">📄 Download Reports (CSV Format)</h3>
+          <p style="color:var(--muted);margin-bottom:20px;font-size:14px;">Download attendance and student data files in CSV format</p>
+          
+          <a href="https://docs.google.com/spreadsheets/d/1woOwa-1ydra43sLalpjGB4x-1ZjeE_rWSy9LDvGBpJA/export?format=csv&gid=493301113" 
+             class="btn-primary" style="display:block;text-align:center;padding:14px;text-decoration:none;margin-bottom:10px;" target="_blank" download="Student_Data.csv">
+            📊 Download Student Data File (CSV)
+          </a>
+          
+          <a href="https://docs.google.com/spreadsheets/d/1woOwa-1ydra43sLalpjGB4x-1ZjeE_rWSy9LDvGBpJA/export?format=csv&gid=0" 
+             class="btn-primary" style="display:block;text-align:center;padding:14px;text-decoration:none;margin-bottom:10px;" target="_blank" download="Attendance_Data.csv">
+            📝 Download Attendance File (CSV)
+          </a>
+        </div>
+      </div>
+
+      <!-- ROZNAMCHA SECTION -->
+      <div id="sectionRoznamcha" class="hidden">
+        <div id="roznamchaContent">
+          <div class="roznamcha-loading">
+            <div class="loading-spinner"></div>
+            <p style="margin-top:16px;color:var(--muted);font-weight:600;">Loading Roznamcha data...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYSTEM INFO SECTION -->
+      <div id="sectionSystemInfo" class="hidden">
+        <div id="systemInfoContent"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Copy Toast Notification -->
+  <div id="copyToast" class="copy-toast">✅ Copied to clipboard!</div>
+
+  <script>
+const MASTER_PASSWORD = "39310242";
+
+    // ===== CONFIGURATION =====
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQdLVXg5f74iOVnFpUx1uLtd_p64ySVU-EIIfRT_SucQ7aEQyakbJLXIASdlTeHrjODg/exec"; // ✅ V12.8: Updated deployment URL
+    const CSV_URL = SCRIPT_URL + "?action=csv";
+    const ROZNAMCHA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhSsnnY8WKnRs-d-oeFjLT1ZhlE8RAb8EyUOUj8NfWzEI2bCha5SdcVWBfcD8z2cUm1DiiLpemKXf/pub?gid=1039264548&single=true&output=csv";
+    const SHEET_ID = "1woOwa-1ydra43sLalpjGB4x-1ZjeE_rWSy9LDvGBpJA";
+    const SHEET_LINK = "https://docs.google.com/spreadsheets/d/1woOwa-1ydra43sLalpjGB4x-1ZjeE_rWSy9LDvGBpJA/edit?gid=1039264548#gid=1039264548";
+
+    const DEPLOYMENT_LINK = SCRIPT_URL;
+    const PIN = "39310242";
+    const WIFI_SSID = "Mirza Gee 2";
+    const IP_ADDRESS = "192.168.10.43";
+    const MAC_ADDRESS = "EC:E3:34:21:06:C0";
+    const SCANNER_MODEL = "MFRC522";
+    const FIRMWARE_VERSION = "v2.10";
+    const SCRIPT_VERSION = "v10.6 MOBILE APP";
+    const MAX_RETRY_ATTEMPTS = 5;
+    const RETRY_DELAY = 3000;
+    const ROZNAMCHA_REFRESH_INTERVAL = 60 * 1000; // 1 minute
+    
+    // ===== GLOBAL STATE =====
+    let g_students = [];
+    let g_filteredStudents = [];
+    let g_selectedUIDs = new Set();
+    let g_todayAttendance = {};
+    let g_allAttendance = {};
+    let g_sessionStats = {
+      totalUploaded: 0,
+      totalDuplicate: 0,
+      totalFailed: 0,
+      totalScanned: 0,
+      queueSize: 0
+    };
+    let g_autoSyncInterval = null;       // existing: pending uploads
+    let g_classSyncInterval = null;      // NEW: sheet → app sync every 1 minute
+    let g_pendingUploads = [];
+    let g_dataLoadStatus = 'loading';
+    let g_retryCount = 0;
+    let g_roznamchaInterval = null;
+    let g_roznamchaLedInterval = null;
+    let g_roznamchaData = null;
+    
+    // ✅ V12.1: Track recent manual changes to prevent auto-sync from overwriting
+    let g_recentManualChanges = new Map(); // identifier → timestamp
+
+    // Class name mappings
+    // Correct Urdu Class Names
+const CLASS_NAMES_URDU = {
+  'Kachi':   'اول ادنی',
+  'KG':      'اول ادنی',
+  'Nursery': 'اول ادنی',
+
+  '1':       'اول اعلی',
+  'One':     'اول اعلی',
+
+  '2':       'دوئم',
+  'Two':     'دوئم',
+
+  '3':       'سوئم',
+  'Three':   'سوئم',
+
+  '4':       'چہارم',
+  'Four':    'چہارم',
+
+  '5':       'پنجم',
+  'Five':    'پنجم',
+
+  '6':       'ششم',
+  'Six':     'ششم',
+
+  '7':       'ہفتم',
+  'Seven':   'ہفتم',
+
+  '8':       'ہشتم',
+  'Eight':   'ہشتم'
+};
+
+    // ===== CSV LOADING =====
+    async function loadAllStudentsFast(retryAttempt = 0) {
+      try {
+        console.log(`📥 Loading students from CSV (Attempt ${retryAttempt + 1}/${MAX_RETRY_ATTEMPTS})...`);
+        
+        showLoadingStatus(`Loading student data... (Attempt ${retryAttempt + 1}/${MAX_RETRY_ATTEMPTS})`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
+        const response = await fetch(CSV_URL, {
+          method: 'GET',
+          cache: 'no-cache',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const csvText = await response.text();
+        
+        if (!csvText || csvText.trim().length === 0) {
+          throw new Error('Empty CSV file received');
+        }
+        
+        // 🔥 NEW: Use smart CSV parser that handles multi-line fields
+        const rows = parseCSVText(csvText);
+        
+        if (rows.length < 2) {
+          throw new Error('CSV file has no data rows');
+        }
+        
+        g_students = [];
+        
+        // Skip header row (index 0), process data rows
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i].trim();
+          if (!row) continue;
+          
+          const cols = parseCSVLine(row);
+          
+          // Basic validation: ensure we have at least the essential fields
+          const uid = cols[0] || '';
+          const srNo = cols[1] || '';
+          const enrollment = cols[2] || '';
+          const name = cols[3] || '';
+          
+          // Skip completely empty rows
+          if (!uid && !srNo && !enrollment && !name) continue;
+          
+          const student = {
+            uid: uid,
+            srNo: srNo,
+            enrollment: enrollment,
+            name: name,
+            gender: cols[4] || '',
+            dob: cols[5] || '',
+            age: cols[6] || '',
+            admission: cols[7] || '',
+            father: cols[8] || '',
+            bform: cols[9] || '',
+            class: cols[10] || '',
+            mobile: cols[11] || '',
+            urduName: cols[12] || '', // ✅ V12.17: Added Urdu name column
+            // 🔑 Identifier used everywhere in app (and for sync mapping)
+            identifier: enrollment || uid || srNo || name
+          };
+          
+          g_students.push(student);
+        }
+        
+        if (g_students.length === 0) {
+          throw new Error('No students parsed from CSV');
+        }
+        
+        console.log(`✅ Successfully loaded ${g_students.length} students from CSV`);
+        console.log(`📊 CSV Parsing Stats:`);
+        console.log(`   - Total rows in CSV: ${rows.length}`);
+        console.log(`   - Header row: 1`);
+        console.log(`   - Data rows processed: ${rows.length - 1}`);
+        console.log(`   - Valid students loaded: ${g_students.length}`);
+        console.log(`   - Rows skipped (empty): ${(rows.length - 1) - g_students.length}`);
+        g_dataLoadStatus = 'success';
+        g_retryCount = 0;
+        
+        showSuccessStatus(`✅ Real-time data loaded: ${g_students.length} students`);
+        
+        populateClassDropdown();
+        filterAndRender();
+        updateSystemInfo();
+        
+        // ✅ V12.17: Auto-sync ALL classes on initial load
+        await syncAllClassesOnLoad();
+        
+      } catch (error) {
+        console.error(`❌ CSV loading failed (Attempt ${retryAttempt + 1}):`, error);
+        
+        g_retryCount = retryAttempt + 1;
+        
+        if (retryAttempt < MAX_RETRY_ATTEMPTS - 1) {
+          showErrorStatus(`⚠️ Connection failed. Retrying in ${RETRY_DELAY/1000} seconds... (${retryAttempt + 1}/${MAX_RETRY_ATTEMPTS})`);
+          
+          setTimeout(() => {
+            loadAllStudentsFast(retryAttempt + 1);
+          }, RETRY_DELAY);
+        } else {
+          g_dataLoadStatus = 'error';
+          showCriticalError(error);
+        }
+      }
+    }
+
+    /**
+     * RFC 4180 Compliant CSV Parser
+     * Handles:
+     * - Quoted fields with line breaks
+     * - Quoted fields with commas
+     * - Escaped quotes ("")
+     * - Mixed quoted and unquoted fields
+     */
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+        
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            // Escaped quote ("")
+            current += '"';
+            i++; // Skip next quote
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // Field separator
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      result.push(current.trim());
+      return result;
+    }
+    
+    /**
+     * Smart CSV Parser with Multi-line Field Support
+     * This function parses entire CSV text and handles fields that span multiple lines
+     */
+    function parseCSVText(csvText) {
+      const lines = csvText.split('\n');
+      const rows = [];
+      let currentRow = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        // Count quotes in this line
+        for (let j = 0; j < line.length; j++) {
+          if (line[j] === '"') {
+            // Check if it's an escaped quote
+            if (line[j + 1] === '"') {
+              j++; // Skip the next quote
+            } else {
+              inQuotes = !inQuotes;
+            }
+          }
+        }
+        
+        // Add line to current row
+        if (currentRow) {
+          currentRow += '\n' + line;
+        } else {
+          currentRow = line;
+        }
+        
+        // If we're not inside quotes, this row is complete
+        if (!inQuotes) {
+          if (currentRow.trim()) {
+            rows.push(currentRow);
+          }
+          currentRow = '';
+        }
+      }
+      
+      // Add any remaining row
+      if (currentRow.trim()) {
+        rows.push(currentRow);
+      }
+      
+      return rows;
+    }
+
+    function showLoadingStatus(message) {
+      const container = document.getElementById('dataLoadStatus');
+      if (!container) return;
+      
+      container.innerHTML = `
+        <div class="card" style="background:linear-gradient(135deg, #667eea15 0%, #764ba215 100%);border:2px solid var(--brand);">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="loading-spinner" style="margin:0;"></div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:14px;color:var(--brand);margin-bottom:4px;">Loading Data...</div>
+              <div style="font-size:12px;color:var(--muted);">${message}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showSuccessStatus(message) {
+      const container = document.getElementById('dataLoadStatus');
+      if (!container) return;
+      
+      container.innerHTML = `
+        <div class="success-banner">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:32px;">✅</div>
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:16px;margin-bottom:4px;">System Online - Ready for Bulk Upload!</div>
+              <div style="font-size:13px;opacity:0.95;">${message}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      setTimeout(() => {
+        if (container) container.innerHTML = '';
+      }, 5000);
+    }
+
+    function showErrorStatus(message) {
+      const container = document.getElementById('dataLoadStatus');
+      if (!container) return;
+      
+      container.innerHTML = `
+        <div class="card" style="background:linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);border:2px solid #f59e0b;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:32px;">⚠️</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:14px;color:#d97706;margin-bottom:4px;">Connection Issue</div>
+              <div style="font-size:12px;color:#92400e;">${message}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showCriticalError(error) {
+      const container = document.getElementById('dataLoadStatus');
+      if (!container) return;
+      
+      const errorDetails = error.message || 'Unknown error';
+      
+      container.innerHTML = `
+        <div class="error-banner">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="font-size:40px;">❌</div>
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:18px;margin-bottom:8px;">Unable to Load Real-Time Data</div>
+              <div style="font-size:13px;opacity:0.95;margin-bottom:12px;">
+                Failed to connect to Google Sheets after ${MAX_RETRY_ATTEMPTS} attempts.
+              </div>
+              <div style="background:rgba(255,255,255,0.2);padding:10px;border-radius:8px;margin-bottom:12px;font-family:monospace;font-size:11px;">
+                Error: ${errorDetails}
+              </div>
+              <button onclick="location.reload()" class="btn-primary" style="background:white;color:#dc2626;padding:12px 24px;font-size:14px;">
+                🔄 Retry Connection
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('classSelect').disabled = true;
+      document.getElementById('searchInput').disabled = true;
+      document.getElementById('selectAllCheckbox').disabled = true;
+      document.getElementById('submitBtn').disabled = true;
+    }
+
+    function populateClassDropdown() {
+      const select = document.getElementById('classSelect');
+      if (!select) return;
+      
+      const classSet = new Set();
+      g_students.forEach(s => {
+        if (s.class && s.class.trim()) {
+          classSet.add(s.class.trim());
+        }
+      });
+      
+      const classes = Array.from(classSet).sort((a, b) => {
+        if (a.toLowerCase() === 'nursery' || a.toLowerCase() === 'kachi') return -1;
+        if (b.toLowerCase() === 'nursery' || b.toLowerCase() === 'kachi') return 1;
+        const aNum = parseInt(a);
+        const bNum = parseInt(b);
+        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+        return a.localeCompare(b);
+      });
+      
+      select.innerHTML = '<option value="">All Classes</option>';
+      classes.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls;
+        opt.textContent = cls;
+        select.appendChild(opt);
+      });
+    }
+
+    function filterAndRender() {
+      if (g_dataLoadStatus !== 'success') return;
+      
+      const classFilter = document.getElementById('classSelect')?.value || '';
+      const searchText = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+      
+      g_filteredStudents = g_students.filter(s => {
+        const matchClass = !classFilter || s.class.trim() === classFilter.trim();
+        const matchSearch = !searchText || 
+          s.name.toLowerCase().includes(searchText) ||
+          s.father.toLowerCase().includes(searchText) ||
+          s.enrollment.toLowerCase().includes(searchText) ||
+          (s.uid && s.uid.toLowerCase().includes(searchText));
+        
+        return matchClass && matchSearch;
+      });
+      
+      const filteredIdentifiers = new Set(g_filteredStudents.map(s => s.identifier));
+      g_selectedUIDs = new Set([...g_selectedUIDs].filter(id => filteredIdentifiers.has(id)));
+      
+      const badgeEl = document.getElementById('classTotalBadge');
+      if (badgeEl) {
+        const cls = classFilter;
+        if (cls) {
+          badgeEl.innerHTML = `<div class="class-total-badge">📚 ${cls}: ${g_filteredStudents.length} Students</div>`;
+        } else {
+          badgeEl.innerHTML = '';
+        }
+      }
+      
+      renderStudentList();
+      updateSelectAllCheckbox();
+    }
+
+    // ✅ V12.2: Helper function to render leave badges with proper colors
+    function renderLeaveBadge(leaveType, leaveLabel) {
+      let badgeClass = 'badge';
+      let badgeText = leaveLabel;
+
+      // Add specific badge color class based on leave type
+      if (leaveType === 'leave_school') {
+        badgeClass += ' badge-leaveschool';
+        badgeText = 'LEAVE';
+      } else if (leaveType === 'sick') {
+        badgeClass += ' badge-sick';
+        badgeText = 'SICK';
+      } else if (leaveType === 'casual') {
+        badgeClass += ' badge-casual';
+        badgeText = 'CASUAL';
+      } else if (leaveType === 'absent') {
+        badgeClass += ' badge-absent';
+        badgeText = 'ABSENT';
+      } else if (leaveType === 'present') {
+        badgeClass += ' badge-present';
+        badgeText = 'PRESENT';
+      }
+
+      return `<span class="${badgeClass}">${badgeText}</span>`;
+    }
+
+
+    // v14.3 - combined status/leave badge renderer
+    function renderStatusBadge(student, status) {
+      const lt  = (student.leaveType  || '').toLowerCase();
+      const lbl = (student.leaveLabel || '');
+      if (lt || lbl) {
+        let type = lt;
+        if (!type && lbl) {
+          const l = lbl.toLowerCase();
+          if (l.includes('leave') && l.includes('school')) type = 'leave_school';
+          else if (l.includes('sick'))   type = 'sick';
+          else if (l.includes('casual')) type = 'casual';
+          else if (l.includes('absent')) type = 'absent';
+        }
+        return renderLeaveBadge(type, lbl || 'Leave');
+      }
+      const st = (status || '').toLowerCase();
+      if (st === 'present') {
+        return '<span class="badge badge-present">PRESENT</span>';
+      }
+      if (st === 'absent') {
+        return '<span class="badge badge-absent">ABSENT</span>';
+      }
+      return '';
+    }
+
+    
+    // v14.6 - format date as DD-MMM-YYYY
+    function formatDateShort(value){
+      if(!value) return 'N/A';
+      const d = new Date(value);
+      if(isNaN(d)) return value;
+      const day = String(d.getDate()).padStart(2,'0');
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const mon = months[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day}-${mon}-${year}`;
+    }
+
+// v14.3 - Student display sorting:
+    // 1) Non leave-school students first, then leave-school students
+    // 2) Within each group: Female (F) A–Z, then others
+    // 3) Name A–Z
+    function studentDisplaySorter(a, b) {
+      // v14.13 - sort by class order, then gender (F first), then name
+      const CLASS_ORDER = [
+        'Nursery','Kachi','KG',
+        '1','One',
+        '2','Two',
+        '3','Three',
+        '4','Four',
+        '5','Five',
+        '6','Six',
+        '7','Seven',
+        '8','Eight',
+        '9','Nine',
+        '10','Ten'
+      ];
+
+      function classIndex(stu) {
+        const raw = (stu.class || '').trim();
+        if (!raw) return 999;
+        const directIndex = CLASS_ORDER.indexOf(raw);
+        if (directIndex !== -1) return directIndex;
+        // Try normalize numeric class names
+        const n = parseInt(raw, 10);
+        if (!isNaN(n)) {
+          const asNum = CLASS_ORDER.indexOf(String(n));
+          if (asNum !== -1) return asNum;
+          return 200 + n;
+        }
+        return 900;
+      }
+
+      const ca = classIndex(a);
+      const cb = classIndex(b);
+      if (ca !== cb) return ca - cb;
+
+      const aGender = (a.gender || '').toUpperCase();
+      const bGender = (b.gender || '').toUpperCase();
+      const aIsF = aGender === 'F';
+      const bIsF = bGender === 'F';
+      if (aIsF && !bIsF) return -1;
+      if (!aIsF && bIsF) return 1;
+
+      const nameA = (a.name || '').toUpperCase();
+      const nameB = (b.name || '').toUpperCase();
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    }
+
+
+    function renderStudentList() {
+      const container = document.getElementById('studentList');
+      if (!container) return;
+      
+      if (g_dataLoadStatus !== 'success') {
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">Loading students...</div>';
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      if (g_filteredStudents.length === 0) {
+        container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">No students found</div>';
+        return;
+      }
+      
+      const sortedStudents = [...g_filteredStudents].sort(studentDisplaySorter);
+      sortedStudents.forEach(student => {
+        const identifier = student.identifier;
+        let isMarked = g_todayAttendance[identifier] !== undefined;
+        let status = g_todayAttendance[identifier];
+        
+        // 🔴 V11.0: Lock logic - force absent for leave_school or auto_absent students
+        const isAutoAbsent = student.autoAbsent === true;
+        // ✅ V12.14: More flexible check for Leave School (handles variations)
+        const leaveTypeCheck = (student.leaveType || '').toLowerCase().trim();
+        const leaveLabelCheck = (student.leaveLabel || '').toLowerCase().trim();
+        const isLeaveSchool = leaveTypeCheck.includes('leave_school') || 
+                             leaveTypeCheck.includes('school') ||
+                             leaveLabelCheck.includes('school');
+        
+        if (isLeaveSchool || isAutoAbsent) {
+          // Force as marked absent - cannot be changed (LOCKED)
+          isMarked = true;
+          status = 'absent';
+          g_todayAttendance[identifier] = 'absent';
+          g_selectedUIDs.delete(identifier); // Remove from selection
+        }
+        
+        const div = document.createElement('div');
+        div.className = 'row-item';
+        
+        // 🔴 V10.24: Color priority system with specific colors per leave type
+        // Priority 1: Student with leave → Color based on leave TYPE
+        // Priority 2: Simple absent (no leave) → Light red
+        // Priority 3: Present → Light green
+        // Priority 4: Selected → Light green
+        
+        const hasLeave = student.leaveActive === true || student.leaveLabel;
+        
+        if (hasLeave) {
+          // HIGHEST PRIORITY: Student has leave → Apply color based on leave TYPE
+          const leaveType = student.leaveType || '';
+          
+          if (leaveType === 'leave_school' || leaveType === 'Leave School') {
+            div.classList.add('on-leave-school'); // Light red
+          } else if (leaveType === 'sick' || leaveType === 'Sick Leave') {
+            div.classList.add('on-leave-sick'); // Light yellow
+          } else if (leaveType === 'casual' || leaveType === 'Casual Leave') {
+            div.classList.add('on-leave-casual'); // Light blue
+          } else {
+            // Fallback: if leaveType not recognized, use leave school color
+            div.classList.add('on-leave-school');
+          }
+        } else if (isMarked) {
+          // SECOND PRIORITY: Marked attendance (present or simple absent)
+          div.style.background = status === 'present' ? '#d1fae5' : '#fee2e2';
+        } else if (g_selectedUIDs.has(identifier)) {
+          // THIRD PRIORITY: Selected but not marked
+          div.classList.add('selected');
+        }
+        
+        div.innerHTML = `
+          <div class="left-icons">
+            <input type="checkbox" 
+                   class="student-checkbox" 
+                   data-identifier="${identifier}"
+                   ${isMarked || isAutoAbsent || isLeaveSchool ? 'disabled style="opacity:0.3"' : ''}
+                   ${g_selectedUIDs.has(identifier) ? 'checked' : ''}>
+          </div>
+          
+          <div class="student-info">
+            <div class="student-name-main">
+              ${student.name}${student.urduName ? ` <span style="color:#d32f2f;font-family:'Noto Nastaliq Urdu',serif;font-size:12px;">${student.urduName}</span>` : ''}
+            </div>
+            <div class="meta">
+              👨‍👧 ${student.father} | 
+              🎓 ${student.class} | 
+              🆔 ${student.enrollment || student.uid || 'N/A'} ${renderStatusBadge(student, status)}
+            </div>
+          </div>
+          
+          <div class="right-buttons">
+            <div class="leave-menu-trigger" onclick="openLeaveMenu('${identifier}')">⋮</div>
+          </div>
+        `;
+        
+        container.appendChild(div);
+      });
+      
+      document.querySelectorAll('.student-checkbox').forEach(cb => {
+        cb.addEventListener('change', handleCheckboxChange);
+      });
+      
+      updateSelectedCount();
+    }
+
+    function editAttendance(identifier) {
+      const currentStatus = g_todayAttendance[identifier];
+      const newStatus = currentStatus === 'present' ? 'absent' : 'present';
+      
+      if (confirm(`Change attendance from ${currentStatus} to ${newStatus}?`)) {
+        // ✅ V12.1: Mark this as a recent manual change
+        g_recentManualChanges.set(identifier, Date.now());
+        console.log(`🔄 Manual change: ${identifier} → ${newStatus} (protected for 2 minutes)`);
+        
+        g_todayAttendance[identifier] = newStatus;
+        
+        const student = g_students.find(s => s.identifier === identifier);
+        if (student) {
+          // ✅ V12.1: Clear auto-absent and leave flags when manually changed
+          student.autoAbsent = false;
+          student.leaveActive = false;
+          console.log(`✅ Cleared auto-absent flags for ${student.name}`);
+        }
+        
+        saveToLocalStorage();
+        renderStudentList();
+        
+        if (student) {
+          uploadSingleAttendance(student, newStatus);
+        }
+        
+        // ✅ V12.1: Remove from recent changes after 2 minutes
+        setTimeout(() => {
+          g_recentManualChanges.delete(identifier);
+          console.log(`⏱️ Manual change protection expired for ${identifier}`);
+        }, 120000); // 2 minutes
+        
+        // Refresh Roznamcha if loaded
+        if (g_roznamchaData) {
+          loadRoznamchaData();
+        }
+      }
+    }
+
+    function handleCheckboxChange(e) {
+      const cb = e.target;
+      const identifier = cb.dataset.identifier;
+      
+      if (cb.checked) {
+        g_selectedUIDs.add(identifier);
+        cb.closest('.row-item').classList.add('selected');
+      } else {
+        g_selectedUIDs.delete(identifier);
+        cb.closest('.row-item').classList.remove('selected');
+      }
+      
+      updateSelectedCount();
+      updateSelectAllCheckbox();
+      saveToLocalStorage();
+    }
+
+    document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      
+      g_filteredStudents.forEach(s => {
+        const id = s.identifier;
+        if (!g_todayAttendance[id]) {
+          if (checked) {
+            g_selectedUIDs.add(id);
+          } else {
+            g_selectedUIDs.delete(id);
+          }
+        }
+      });
+      
+      renderStudentList();
+      saveToLocalStorage();
+    });
+
+    function updateSelectAllCheckbox() {
+      const checkbox = document.getElementById('selectAllCheckbox');
+      if (!checkbox) return;
+      
+      const unmarkedStudents = g_filteredStudents.filter(s => !g_todayAttendance[s.identifier]);
+      const allSelected = unmarkedStudents.length > 0 && 
+        unmarkedStudents.every(s => g_selectedUIDs.has(s.identifier));
+      
+      checkbox.checked = allSelected;
+    }
+
+    function updateSelectedCount() {
+      const count = g_filteredStudents.filter(s => g_selectedUIDs.has(s.identifier)).length;
+      document.getElementById('selectedCount').textContent = `${count} Selected`;
+    }
+    
+    // ✅ V12.5: UPDATED - Show small bubble summary (only after submission)
+    function showSummaryBubble() {
+      const totalStudents = g_filteredStudents.length;
+      let presentCount = 0;
+      let absentCount = 0;
+      
+      g_filteredStudents.forEach(student => {
+        const status = g_todayAttendance[student.identifier];
+        if (status === 'present') presentCount++;
+        else if (status === 'absent') absentCount++;
+      });
+      
+      const presentPercentage = totalStudents > 0 ? ((presentCount / totalStudents) * 100).toFixed(1) : 0;
+      
+      // Remove existing bubble if any
+      const existing = document.querySelector('.summary-bubble');
+      if (existing) existing.remove();
+      
+      // Create small bubble
+      const bubble = document.createElement('div');
+      bubble.className = 'summary-bubble';
+      bubble.innerHTML = `
+        <div class="summary-bubble-header">
+          📊 Attendance Summary
+        </div>
+        <div class="summary-bubble-row">
+          <span>Total:</span>
+          <strong>${totalStudents}</strong>
+        </div>
+        <div class="summary-bubble-row">
+          <span style="color:#10b981;">✅ Present:</span>
+          <strong style="color:#10b981;">${presentCount}</strong>
+        </div>
+        <div class="summary-bubble-row">
+          <span style="color:#ef4444;">❌ Absent:</span>
+          <strong style="color:#ef4444;">${absentCount}</strong>
+        </div>
+        <div class="summary-bubble-row" style="padding-top:6px;border-top:1px solid #e2e8f0;margin-top:6px;">
+          <span style="font-weight:700;">Present %:</span>
+          <strong style="color:${presentPercentage >= 75 ? '#10b981' : presentPercentage >= 50 ? '#f59e0b' : '#ef4444'};font-size:13px;">${presentPercentage}%</strong>
+        </div>
+      `;
+      
+      document.body.appendChild(bubble);
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        bubble.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => bubble.remove(), 300);
+      }, 5000);
+    }
+
+    document.getElementById('submitBtn')?.addEventListener('click', submitAttendance);
+
+    async function submitAttendance() {
+      if (g_dataLoadStatus !== 'success') {
+        alert('❌ Cannot submit: Student data not loaded!');
+        return;
+      }
+
+      if (g_selectedUIDs.size === 0) {
+        alert('❌ Please select at least one student!');
+        return;
+      }
+
+      const selectedStudents = g_filteredStudents.filter(s => 
+        g_selectedUIDs.has(s.identifier) && !g_todayAttendance[s.identifier]
+      );
+
+      if (selectedStudents.length === 0) {
+        alert('❌ All selected students have already been marked!');
+        return;
+      }
+
+      if (selectedStudents.length > 20) {
+        const estimatedTime = Math.ceil(selectedStudents.length * 0.4);
+        if (!confirm(`⚠️ You are about to mark ${selectedStudents.length} students present.\n\nThis will take about ${estimatedTime} seconds.\n\nContinue?`)) {
+          return;
+        }
+      }
+
+      g_pendingUploads.push(...selectedStudents);
+      saveToLocalStorage();
+
+      const total = selectedStudents.length;
+      let success = 0, duplicate = 0, failed = 0;
+      let processed = 0;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = `Starting upload...`;
+
+      showUploadToast(0, total);
+
+      const BATCH_SIZE = 5;
+      
+      for (let i = 0; i < selectedStudents.length; i += BATCH_SIZE) {
+        const batch = selectedStudents.slice(i, i + BATCH_SIZE);
+        
+        const batchPromises = batch.map(async (student) => {
+          try {
+            const result = await uploadSingleAttendance(student, 'present');
+            
+            if (result.success) {
+              success++;
+              g_sessionStats.totalUploaded++;
+              g_sessionStats.totalScanned++;
+              g_todayAttendance[student.identifier] = 'present';
+              g_allAttendance[student.identifier] = g_allAttendance[student.identifier] || [];
+              g_allAttendance[student.identifier].push({date: new Date().toLocaleDateString(), status: 'present'});
+              g_selectedUIDs.delete(student.identifier);
+              g_pendingUploads = g_pendingUploads.filter(s => s.identifier !== student.identifier);
+              return 'success';
+            } else if (result.alreadyMarked) {
+              duplicate++;
+              g_sessionStats.totalDuplicate++;
+              g_todayAttendance[student.identifier] = 'present';
+              g_selectedUIDs.delete(student.identifier);
+              g_pendingUploads = g_pendingUploads.filter(s => s.identifier !== student.identifier);
+              return 'duplicate';
+            } else {
+              failed++;
+              g_sessionStats.totalFailed++;
+              return 'failed';
+            }
+          } catch (error) {
+            console.error('❌ Upload error:', error);
+            failed++;
+            g_sessionStats.totalFailed++;
+            return 'error';
+          }
+        });
+        
+        await Promise.all(batchPromises);
+        
+        processed = Math.min(i + BATCH_SIZE, total);
+        btn.textContent = `Uploading ${processed}/${total}...`;
+        updateUploadToast(processed, total, success, duplicate, failed);
+        
+        if (i + BATCH_SIZE < selectedStudents.length) {
+          await new Promise(r => setTimeout(r, 300));
+        }
+      }
+
+      g_sessionStats.queueSize = g_pendingUploads.length;
+
+      btn.disabled = false;
+      btn.textContent = '✓ Submit Attendance';
+      hideUploadToast();
+
+      saveToLocalStorage();
+      renderStudentList();
+      updateSystemInfo();
+      
+      // ✅ V12.5: Show small summary bubble after submission
+      showSummaryBubble();
+    }
+    
+    async function uploadSingleAttendance(student, status) {
+
+      let url = `${SCRIPT_URL}?action=insert&status=${status}`;
+
+      // ✅ REQUIRED: Enrollment
+      if (student.enrollment) {
+        url += `&enrollment=${encodeURIComponent(student.enrollment)}`;
+      }
+
+      // ✅ REQUIRED: Class
+      if (student.class) {
+        url += `&class=${encodeURIComponent(student.class)}`;
+      }
+
+      // ✅ OPTIONAL: Serial Number
+      if (student.srNo) {
+        url += `&sr=${encodeURIComponent(student.srNo)}`;
+      }
+
+      // OPTIONAL (logs)
+      if (student.name) {
+        url += `&name=${encodeURIComponent(student.name)}`;
+      }
+      if (student.father) {
+        url += `&father=${encodeURIComponent(student.father)}`;
+      }
+
+      console.log(`📤 Uploading: ${student.name} (${status})`);
+      console.log(`➡ URL: ${url}`);
+
+      const response = await fetch(url, { method: 'GET' });
+      const result = await response.json();
+
+      console.log("📥 Response:", result);
+      return result;
+    }
+
+    async function processPendingUploads() {
+      if (g_pendingUploads.length === 0) return;
+      
+      console.log(`🔄 Processing ${g_pendingUploads.length} pending uploads...`);
+      
+      const uploads = [...g_pendingUploads];
+      
+      for (const student of uploads) {
+        try {
+          const result = await uploadSingleAttendance(student, 'present');
+          if (result.success || result.alreadyMarked) {
+            g_pendingUploads = g_pendingUploads.filter(s => s.identifier !== student.identifier);
+            g_todayAttendance[student.identifier] = 'present';
+          }
+        } catch (error) {
+          console.error('Background upload failed:', error);
+        }
+      }
+      
+      g_sessionStats.queueSize = g_pendingUploads.length;
+      saveToLocalStorage();
+      console.log(`✅ Background uploads complete. ${g_pendingUploads.length} remaining.`);
+    }
+
+    // ===== NEW: SYNCSTATUS HELPERS (Sheet → App) =====
+    async function fetchSyncStatus(cls) {
+      if (!cls) {
+        console.warn('⚠️ No class selected for syncstatus');
+        return { success: false, error: 'Class not selected' };
+      }
+      try {
+        const url = `${SCRIPT_URL}?action=syncstatus&class=${encodeURIComponent(cls)}`;
+        console.log('📡 Fetching syncstatus:', url);
+        const res = await fetch(url, { method: 'GET' });
+        const data = await res.json();
+        console.log('📥 syncstatus response:', data);
+        return data;
+      } catch (err) {
+        console.error('❌ syncstatus error:', err);
+        return { success: false, error: err.message };
+      }
+    }
+
+    function applySheetAttendance(syncData) {
+      if (!syncData || !syncData.success) {
+        console.warn('⚠️ applySheetAttendance called with invalid data', syncData);
+        return;
+      }
+
+      const cls = (syncData.class || '').trim();
+      const statusDate = syncData.date;
+      console.log(`✅ Applying sheet attendance for Class=${cls}, Date=${statusDate}`);
+
+      // Clear today's map only for this class
+      const classStudents = g_students.filter(s => s.class && s.class.trim() === cls);
+      const classIdSet = new Set();
+      classStudents.forEach(stu => {
+        classIdSet.add(stu.identifier);
+        delete g_todayAttendance[stu.identifier];
+      });
+
+      // Apply status from syncstatus
+      (syncData.students || []).forEach(row => {
+        const local = g_students.find(s =>
+          (row.enrolment && s.enrollment === row.enrolment) ||
+          (row.uid && s.uid === row.uid) ||
+          (row.sr && s.srNo === row.sr)
+        );
+        if (!local) return;
+
+        const id = local.identifier;
+        const status = String(row.status || '').toUpperCase();
+
+        if (status === 'PRESENT') {
+          g_todayAttendance[id] = 'present';
+          g_selectedUIDs.delete(id);
+        } else if (status === 'ABSENT') {
+          g_todayAttendance[id] = 'absent';
+          g_selectedUIDs.delete(id);
+        } else {
+          delete g_todayAttendance[id];
+        }
+      });
+
+      saveToLocalStorage();
+      filterAndRender();
+
+      const badgeEl = document.getElementById('classTotalBadge');
+      if (badgeEl && syncData.total !== undefined) {
+        const infoLine = `<div style="font-size:11px;margin-top:4px;color:var(--muted);">
+          Synced with Sheet: Present ${syncData.present}, Absent ${syncData.absent}, Not Marked ${syncData.notMarked}
+        </div>`;
+        badgeEl.innerHTML = `<div class="class-total-badge">📚 ${cls}: ${classStudents.length} Students</div>${infoLine}`;
+      }
+
+      console.log('✅ Sheet attendance applied to app for class', cls);
+    }
+
+    
+    // ✅ V12.0: Fetch leave status for a class with enhanced error handling
+    async function fetchLeaveStatus(cls) {
+      if (!cls) {
+        console.warn('⚠️ No class selected for leave status');
+        return { success: false, error: 'Class not selected' };
+      }
+      
+      if (!SCRIPT_URL) {
+        console.error('❌ SCRIPT_URL not configured');
+        return { success: false, error: 'SCRIPT_URL not configured' };
+      }
+      
+      try {
+        const url = `${SCRIPT_URL}?action=getleave&class=${encodeURIComponent(cls)}`;
+        console.log('📡 Fetching leave status:', url);
+        
+        const res = await fetch(url, { 
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        console.log('📥 Leave status response:', data);
+        
+        // ✅ V12.0: Validate response structure
+        if (!data.success && data.error) {
+          console.warn('⚠️ Leave status API error:', data.error);
+        }
+        
+        return data;
+      } catch (err) {
+        console.error('❌ Leave status fetch error:', err);
+        return { success: false, error: err.message };
+      }
+    }
+
+    // ✅ V12.0: Apply leave labels and auto-absent with proper object property access
+    function applyLeaveStatus(cls, leaveData) {
+      if (!leaveData || !leaveData.success) {
+        console.warn('⚠️ applyLeaveStatus: Invalid leave data', leaveData);
+        return;
+      }
+      
+      const rows = leaveData.rows || leaveData.data || [];
+      if (!Array.isArray(rows)) {
+        console.warn('⚠️ applyLeaveStatus: rows is not an array', typeof rows);
+        return;
+      }
+
+      const className = (cls || '').trim();
+      console.log(`📋 Applying leave status for class: ${className}, rows: ${rows.length}`);
+
+      // ✅ Clear previous leave data for this class
+      g_students.forEach(stu => {
+        if (!className || (stu.class && stu.class.trim() === className)) {
+          stu.leaveLabel = '';
+          stu.leaveType = '';
+          stu.leaveActive = false;
+          stu.autoAbsent = false;
+          stu.leaveFrom = '';
+          stu.leaveTo = '';
+        }
+      });
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      let processedCount = 0;
+      let autoAbsentCount = 0;
+
+      rows.forEach((r, index) => {
+        try {
+          // ✅ V12.0 FIX: Access as object properties, not array indices
+          const uid   = String(r.uid || '').trim();
+          const sr    = String(r.sr || '').trim();
+          const enr   = String(r.enrolment || '').trim();
+          const clsRow = String(r.class || '').trim();
+          
+          // ✅ Use standardized fields from Google Script v37.0+
+          const leaveType = r.leave_type || '';        // Machine value: leave_school, sick, casual, absent
+          const leaveLabel = r.leave_label || '';      // Display value: "Sick Leave", "Leave School", etc.
+          const leaveFrom = r.leave_from || '';        // YYYY-MM-DD format
+          const leaveTo = r.leave_to || '';            // YYYY-MM-DD format
+          const autoAbsent = r.auto_absent || false;   // ✅ CORRECT: Boolean from Google Script
+
+          // Filter by class if specified
+          if (className && clsRow && clsRow.trim() !== className) return;
+
+          // Find student by UID, enrollment, or SR+Class
+          const student = g_students.find(s =>
+            (uid && s.uid === uid) ||
+            (enr && s.enrollment === enr) ||
+            (sr && s.srNo === sr && (!className || (s.class && s.class.trim() === clsRow)))
+          );
+          
+          if (!student) {
+            console.warn(`⚠️ Student not found: UID=${uid}, ENR=${enr}, SR=${sr}, Class=${clsRow}`);
+            return;
+          }
+
+          // ✅ Store complete leave information
+          student.leaveLabel = leaveLabel;
+          student.leaveType = leaveType;
+          student.leaveFrom = leaveFrom;
+          student.leaveTo = leaveTo;
+          
+          // ✅ V12.0: Use standardized leave_type (no string matching needed)
+          if (leaveType === 'leave_school') {
+            student.leaveActive = true;
+          } else if (leaveType === 'sick') {
+            student.leaveActive = true;
+          } else if (leaveType === 'casual') {
+            student.leaveActive = true;
+          } else if (leaveType === 'absent') {
+            student.leaveActive = true;
+          } else if (leaveLabel && leaveLabel.trim() !== '') {
+            // Has some leave but type unknown
+            student.leaveActive = true;
+          } else {
+            student.leaveActive = false;
+          }
+
+          const id = student.identifier;
+
+          // ✅ V12.1 FIX: Check if this student was recently changed manually
+          const recentChangeTime = g_recentManualChanges.get(id);
+          const isRecentChange = recentChangeTime && (Date.now() - recentChangeTime) < 120000; // 2 minutes
+
+          // ✅ V12.0 CRITICAL FIX: Use auto_absent boolean from Google Script
+          // ✅ V12.1: Don't override recent manual changes
+          if (!isRecentChange && (autoAbsent === true || autoAbsent === 'TRUE' || autoAbsent === 1)) {
+            console.log(`🔴 Auto-marking ${student.name} as absent (auto_absent=${autoAbsent}, type=${leaveType})`);
+            g_todayAttendance[id] = 'absent';
+            g_selectedUIDs.delete(id);
+            student.autoAbsent = true;
+            autoAbsentCount++;
+          } else if (isRecentChange) {
+            console.log(`⏭️ Skipping auto-absent for ${student.name} - recently changed manually (${Math.round((Date.now() - recentChangeTime) / 1000)}s ago)`);
+            student.autoAbsent = false;
+          } else {
+            student.autoAbsent = false;
+          }
+          
+          processedCount++;
+          
+          // ✅ Enhanced logging for debugging
+          if (student.leaveActive) {
+            console.log(`📝 Leave applied: ${student.name} | Type: ${leaveType} | Label: ${leaveLabel} | Auto-Absent: ${autoAbsent} | From: ${leaveFrom} | To: ${leaveTo}`);
+          }
+        } catch (err) {
+          console.error(`❌ Error processing leave row ${index}:`, err, r);
+        }
+      });
+
+      console.log(`✅ Leave status applied: ${processedCount} students processed, ${autoAbsentCount} marked auto-absent`);
+      
+      saveToLocalStorage();
+      renderStudentList();
+    }
+
+// ✅ V12.17: NEW - Sync ALL classes on initial load
+    async function syncAllClassesOnLoad() {
+      console.log('🔄 V12.17: Starting auto-sync for ALL classes...');
+      
+      // Get all unique classes
+      const classSet = new Set();
+      g_students.forEach(s => {
+        if (s.class && s.class.trim()) {
+          classSet.add(s.class.trim());
+        }
+      });
+      
+      const allClasses = Array.from(classSet);
+      console.log(`📚 Found ${allClasses.length} classes to sync:`, allClasses);
+      
+      let syncedCount = 0;
+      let errorCount = 0;
+      
+      // Sync each class
+      for (const className of allClasses) {
+        try {
+          console.log(`🔄 Syncing class: ${className}`);
+          
+          // Fetch attendance for this class
+          const sheet = await fetchSyncStatus(className);
+          if (sheet && sheet.success) {
+            applySheetAttendance(sheet);
+            console.log(`  ✅ Attendance synced for ${className}`);
+          }
+          
+          // Fetch leave status for this class
+          const leave = await fetchLeaveStatus(className);
+          if (leave && leave.success) {
+            applyLeaveStatus(className, leave);
+            console.log(`  ✅ Leave status synced for ${className}`);
+          }
+          
+          syncedCount++;
+        } catch (error) {
+          console.error(`  ❌ Error syncing ${className}:`, error);
+          errorCount++;
+        }
+      }
+      
+      console.log(`✅ V12.17: Initial sync complete!`);
+      console.log(`   - Classes synced: ${syncedCount}/${allClasses.length}`);
+      console.log(`   - Errors: ${errorCount}`);
+      
+      // Update display after sync
+      filterAndRender();
+      updateSystemInfo();
+      
+      showSuccessStatus(`✅ All classes synced: ${syncedCount}/${allClasses.length} classes`);
+    }
+
+// ✅ V12.17: Auto sync ALL classes every 1 minute (not just selected class)
+    function startClassAutoSync() {
+      if (g_classSyncInterval) clearInterval(g_classSyncInterval);
+
+      g_classSyncInterval = setInterval(async () => {
+        console.log('⏱️ V12.17: Auto-sync ALL classes triggered (1-minute interval)');
+        
+        // Get all unique classes
+        const classSet = new Set();
+        g_students.forEach(s => {
+          if (s.class && s.class.trim()) {
+            classSet.add(s.class.trim());
+          }
+        });
+        
+        const allClasses = Array.from(classSet);
+        
+        // Sync each class silently in background
+        for (const className of allClasses) {
+          try {
+            const sheet = await fetchSyncStatus(className);
+            if (sheet && sheet.success) {
+              applySheetAttendance(sheet);
+            }
+            
+            const leave = await fetchLeaveStatus(className);
+            if (leave && leave.success) {
+              applyLeaveStatus(className, leave);
+            }
+          } catch (error) {
+            console.error(`⚠️ Auto-sync error for ${className}:`, error);
+          }
+        }
+        
+        console.log(`✅ Auto-sync complete: ${allClasses.length} classes synced`);
+        filterAndRender();
+        updateSystemInfo();
+      }, 60 * 1000); // 1 minute
+
+      console.log('✅ V12.17: Auto-sync started (ALL classes every 1 minute)');
+    }
+
+    function stopClassAutoSync() {
+      if (g_classSyncInterval) {
+        clearInterval(g_classSyncInterval);
+        g_classSyncInterval = null;
+        console.log('⏹️ Class auto-sync stopped');
+      }
+    }
+
+    document.getElementById('searchInput')?.addEventListener('input', (e) => {
+      filterAndRender();
+    });
+
+    // ===== STUDENT INFO SEARCH =====
+    const studentSearchInput = document.getElementById('singleStudentSearch');
+    const studentSearchDropdown = document.getElementById('studentSearchDropdown');
+    
+    studentSearchInput?.addEventListener('input', (e) => {
+      const searchText = e.target.value.trim().toLowerCase();
+      
+      if (!searchText || searchText.length < 2) {
+        studentSearchDropdown.classList.remove('show');
+        return;
+      }
+      
+      if (g_dataLoadStatus !== 'success' || g_students.length === 0) {
+        studentSearchDropdown.innerHTML = '<div class="autocomplete-empty">No student data loaded</div>';
+        studentSearchDropdown.classList.add('show');
+        return;
+      }
+      
+      const matchedStudents = g_students.filter(s => {
+        return s.name.toLowerCase().includes(searchText) ||
+               s.father.toLowerCase().includes(searchText) ||
+               s.enrollment.toLowerCase().includes(searchText) ||
+               (s.uid && s.uid.toLowerCase().includes(searchText));
+      }).slice(0, 10);
+      
+      if (matchedStudents.length === 0) {
+        studentSearchDropdown.innerHTML = '<div class="autocomplete-empty">No students found</div>';
+        studentSearchDropdown.classList.add('show');
+        return;
+      }
+      
+      studentSearchDropdown.innerHTML = matchedStudents.map(s => `
+        <div class="autocomplete-item" onclick="showStudentDetails('${s.identifier}')">
+          <div class="autocomplete-item-avatar ${s.gender.toLowerCase() === 'm' ? 'male' : 'female'}">
+            ${s.gender === 'M' ? '👨‍🎓' : '👩‍🎓'}
+          </div>
+          <div class="autocomplete-item-info">
+            <div class="autocomplete-item-name">${s.name}</div>
+            <div class="autocomplete-item-meta">
+              <span>👨‍👧 ${s.father}</span>
+              <span class="autocomplete-item-badge">🎓 ${s.class}</span>
+              <span class="autocomplete-item-badge">🆔 ${s.enrollment || s.uid || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      studentSearchDropdown.classList.add('show');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.autocomplete-container')) {
+        studentSearchDropdown?.classList.remove('show');
+      }
+    });
+    
+    function showStudentDetails(identifier) {
+      const student = g_students.find(s => s.identifier === identifier);
+      if (!student) return;
+      
+      studentSearchDropdown.classList.remove('show');
+      studentSearchInput.value = student.name;
+      
+      const detailResult = document.getElementById('studentDetailResult');
+      if (!detailResult) return;
+      
+      const attendanceStatus = g_todayAttendance[identifier];
+      const currentDateTime = new Date().toLocaleString('en-GB', { 
+        timeZone: 'Asia/Karachi',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).replace(',', ' -');
+      
+      detailResult.innerHTML = `
+        <div class="student-detail-card">
+          <div class="student-detail-row">
+            <span class="student-detail-label">UID NO:</span>
+            <span class="student-detail-value">${student.uid || 'N/A'}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">${student.gender === 'M' ? '👨‍🎓' : '👩‍🎓'} Student Name:</span>
+            <span class="student-detail-value">>>> ${student.name.toUpperCase()} <<<</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">👨‍👧 Father Name:</span>
+            <span class="student-detail-value">(F) ${student.father.toUpperCase()}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">🚻 Gender:</span>
+            <span class="student-detail-value">${student.gender}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">🔢 Sr No:</span>
+            <span class="student-detail-value">${student.srNo || 'N/A'}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">🆔 Enrolment No:</span>
+            <span class="student-detail-value">${student.enrollment || 'N/A'}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">📄 B-Form:</span>
+            <span class="student-detail-value">${student.bform || 'N/A'}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">🎓 Class:</span>
+            <span class="student-detail-value">${student.class}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">📞 Mobile No:</span>
+            <div class="mobile-edit-container" id="mobileContainer_${identifier}">
+              <span class="student-detail-value" id="mobileDisplay_${identifier}">${student.mobile || 'Not provided'}</span>
+              <button class="btn-small btn-edit" onclick="editMobileNumber('${identifier}')">Edit</button>
+            </div>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">👶 Age:</span>
+            <span class="student-detail-value">${student.age || 'N/A'}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">🎂 DOB:</span>
+            <span class="student-detail-value">${formatDateShort(student.dob)}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">📅 Date of Admission:</span>
+            <span class="student-detail-value">${formatDateShort(student.admission)}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">📊 Status:</span>
+            <span class="student-detail-value">${attendanceStatus === 'present' ? '✅ Present Today' : attendanceStatus === 'absent' ? '❌ Absent Today' : '⏳ Not Marked'}</span>
+          </div>
+          <div class="student-detail-row">
+            <span class="student-detail-label">🕒 Date & Time:</span>
+            <span class="student-detail-value">${currentDateTime}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+            <button onclick="markStudentAttendance('${identifier}', 'present')" 
+                    class="btn-primary btn-success" style="padding:12px;">
+              ✅ Mark Present
+            </button>
+            <button onclick="markStudentAttendance('${identifier}', 'absent')" 
+                    class="btn-primary btn-danger" style="padding:12px;">
+              ❌ Mark Absent
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    function editMobileNumber(identifier) {
+      const student = g_students.find(s => s.identifier === identifier);
+      if (!student) return;
+      
+      const container = document.getElementById(`mobileContainer_${identifier}`);
+      if (!container) return;
+      
+      const currentMobile = student.mobile || '';
+      
+      container.innerHTML = `
+        <input type="tel" 
+               class="mobile-edit-input" 
+               id="mobileInput_${identifier}" 
+               value="${currentMobile}" 
+               placeholder="Enter mobile number" 
+               maxlength="15" />
+        <button class="btn-small btn-save" onclick="saveMobileNumber('${identifier}')">Save</button>
+        <button class="btn-small btn-cancel" onclick="showStudentDetails('${identifier}')">Cancel</button>
+      `;
+      
+      document.getElementById(`mobileInput_${identifier}`).focus();
+    }
+    
+    async function saveMobileNumber(identifier) {
+      const student = g_students.find(s => s.identifier === identifier);
+      if (!student) return;
+      
+      const input = document.getElementById(`mobileInput_${identifier}`);
+      if (!input) return;
+      
+      const newMobile = input.value.trim();
+      
+      if (!newMobile) {
+        alert('❌ Please enter a mobile number!');
+        return;
+      }
+      
+      if (!/^\d{10,15}$/.test(newMobile)) {
+        alert('❌ Please enter a valid mobile number (10-15 digits)!');
+        return;
+      }
+      
+      try {
+        const saveBtn = input.nextElementSibling;
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Saving...';
+        }
+        
+        const url = `${SCRIPT_URL}?action=updateMobile&uid=${encodeURIComponent(student.uid || '')}&sr=${encodeURIComponent(student.srNo || '')}&enrollment=${encodeURIComponent(student.enrollment || '')}&name=${encodeURIComponent(student.name || '')}&father=${encodeURIComponent(student.father || '')}&class=${encodeURIComponent(student.class || '')}&mobile=${encodeURIComponent(newMobile)}`;
+        
+        console.log(`📤 Updating mobile number for ${student.name}...`);
+        
+        const response = await fetch(url, { method: 'GET' });
+        const result = await response.json();
+        
+        console.log(`📥 Update response:`, result);
+        
+        if (result.success) {
+          student.mobile = newMobile;
+          
+          const studentIndex = g_students.findIndex(s => s.identifier === identifier);
+          if (studentIndex !== -1) {
+            g_students[studentIndex].mobile = newMobile;
+          }
+          
+          alert('✅ Mobile number updated successfully!');
+          showStudentDetails(identifier);
+        } else {
+          alert('❌ Failed to update mobile number. Please try again.');
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error updating mobile number:', error);
+        alert('❌ Error updating mobile number. Please check your connection and try again.');
+        const saveBtn = input.nextElementSibling;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+        }
+      }
+    }
+    
+    function markStudentAttendance(identifier, status) {
+      const student = g_students.find(s => s.identifier === identifier);
+      if (!student) return;
+
+      if (confirm(`Mark ${student.name} as ${status}?`)) {
+        g_todayAttendance[identifier] = status;
+        saveToLocalStorage();
+
+        showStudentDetails(identifier);
+        const uploadPromise = uploadSingleAttendance(student, status);
+
+        // ⭐ NEW: Attach SMS only when marking absent and upload succeeds
+        if (status === 'absent' && uploadPromise && typeof uploadPromise.then === 'function') {
+          uploadPromise
+            .then(result => {
+              try {
+                if (result && result.success && student.enrollment) {
+                  const smsUrl =
+                    `${SCRIPT_URL}?action=sendsms` +
+                    `&enrollment=${encodeURIComponent(student.enrollment)}` +
+                    `&status=absent`;
+
+                  console.log("📤 Sending Absent SMS for:", student.name, smsUrl);
+
+                  fetch(smsUrl)
+                    .then(r => r.json())
+                    .then(res => {
+                      console.log("📩 SMS Response:", res);
+                      if (res && res.success) {
+                        alert("📩 SMS sent to parent successfully.");
+                      } else {
+                        alert("⚠️ SMS not sent. " + (res && res.message ? res.message : "Please check SMS settings."));
+                      }
+                    })
+                    .catch(err => {
+                      console.error("❌ SMS Error:", err);
+                      alert("❌ SMS error. Please check internet and SMS settings.");
+                    });
+                } else {
+                  console.warn("⚠️ SMS not sent: upload failed or missing enrollment.", result);
+                }
+              } catch (err) {
+                console.error("❌ Unexpected error in SMS handler:", err);
+              }
+            })
+            .catch(err => {
+              console.error("❌ Error during attendance upload (SMS step):", err);
+            });
+        }
+
+        // 🔴 V10.23: If marking absent and no leave exists, send "Absent" as leave type
+        if (status === 'absent' && !student.leaveActive && !student.leaveLabel) {
+          const today = new Date().toISOString().split('T')[0];
+          sendLeaveDetail(student, 'Absent', today, today, 'Auto-marked absent without leave');
+          console.log(`✅ Sent "Absent" leave record for ${student.name}`);
+        }
+
+        // Refresh Roznamcha if loaded
+        if (g_roznamchaData) {
+          loadRoznamchaData();
+        }
+
+      }
+    }
+    
+    window.showStudentDetails = showStudentDetails;
+    window.markStudentAttendance = markStudentAttendance;
+    window.editAttendance = editAttendance;
+    window.editMobileNumber = editMobileNumber;
+    window.saveMobileNumber = saveMobileNumber;
+
+    function showUploadToast(current, total) {
+      const existing = document.getElementById('uploadToast');
+      if (existing) existing.remove();
+
+      const toast = document.createElement('div');
+      toast.id = 'uploadToast';
+      toast.className = 'upload-toast';
+      toast.innerHTML = `
+        <div style="font-weight:700;margin-bottom:8px;">📤 Uploading Attendance...</div>
+        <div class="upload-progress-bar">
+          <div class="upload-progress-fill" style="width:0%"></div>
+        </div>
+        <div id="uploadStats" style="font-size:12px;color:var(--muted);margin-top:6px;">
+          0 / ${total} uploaded
+        </div>
+      `;
+      document.body.appendChild(toast);
+    }
+
+    function updateUploadToast(current, total, success, duplicate, failed) {
+      const progress = (current / total) * 100;
+      const fill = document.querySelector('.upload-progress-fill');
+      const stats = document.getElementById('uploadStats');
+      
+      if (fill) fill.style.width = `${progress}%`;
+      if (stats) {
+        stats.innerHTML = `${current} / ${total} | ✅ ${success} | ⚠️ ${duplicate} | ❌ ${failed}`;
+      }
+    }
+
+    function hideUploadToast() {
+      setTimeout(() => {
+        const toast = document.getElementById('uploadToast');
+        if (toast) toast.remove();
+      }, 2000);
+    }
+
+    // ===== ROZNAMCHA FUNCTIONS =====
+    
+    async function loadRoznamchaData() {
+      try {
+        console.log('📊 Loading Roznamcha from CSV file...');
+
+        if (!ROZNAMCHA_CSV_URL) {
+          showRoznamchaError('Roznamcha CSV URL is not configured in the app.');
+          return;
+        }
+
+        const response = await fetch(ROZNAMCHA_CSV_URL, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status + ' while downloading CSV');
+        }
+
+        const csvText = await response.text();
+        const data = parseRoznamchaCsv(csvText);
+
+        if (!data || !data.classBreakdown || Object.keys(data.classBreakdown).length === 0) {
+          throw new Error('Roznamcha CSV did not contain valid data.');
+        }
+
+        g_roznamchaData = data;
+        renderRoznamcha(data);
+        console.log('✅ Roznamcha loaded from CSV successfully');
+
+      } catch (error) {
+        console.error('❌ Error loading Roznamcha CSV:', error);
+        showRoznamchaError('Failed to load Roznamcha from CSV file. Error: ' + error.message);
+      }
+    }
+
+    function parseRoznamchaCsv(csvText) {
+      try {
+        const lines = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+        if (!lines.length) return null;
+
+        const classBreakdown = {};
+        let totalRow = null;
+        let dateStr = null;
+        let percentStr = null;
+        let dayLabel = '';
+
+        for (const line of lines) {
+          const rawCells = line.split(',');
+          if (!rawCells.length) continue;
+
+          // First column is empty in your CSV (starts with a comma)
+          rawCells.shift();
+          if (!rawCells.length) continue;
+
+          const label = (rawCells[0] || '').trim();
+          if (!label) continue;
+
+          // Capture weekday row (Friday, Saturday, etc.) and skip it from class list
+          const dayNamesList = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          if (dayNamesList.includes(label)) {
+            dayLabel = label;
+            continue;
+          }
+
+          // Skip title / school name row
+          if (label.includes('روزنامچہ حاضری')) {
+            continue;
+          }
+
+          if (label === 'CLASS') {
+            // header row
+            continue;
+          }
+
+          // Date + percentage row
+          if (label === 'Date:' || label === 'تاریخ:') {
+            dateStr = (rawCells[1] || '').trim();
+            // percentage around 5th or 6th column e.g. 94%
+            percentStr = (rawCells[4] || rawCells[5] || '').trim();
+            continue;
+          }
+
+          // Total row
+          if (label.toLowerCase().startsWith('total')) {
+            totalRow = rawCells.slice();
+          }
+
+          // Normal class rows (Kachi, One, Two, ...)
+          if (label && !label.toLowerCase().startsWith('total') && label !== 'Date:' && label !== 'تاریخ:') {
+            const classKey = label.split('-')[0].trim(); // "Kachi- اول ادنی" -> "Kachi"
+            const nums = rawCells.slice(1).map(v => parseInt(v, 10) || 0);
+            const [tb, tg, tt, ab, ag, at, pb, pg, pt] = nums;
+
+            classBreakdown[classKey] = {
+              totalBoys: tb,
+              totalGirls: tg,
+              total: tt,
+              absentBoys: ab,
+              absentGirls: ag,
+              absent: at,
+              presentBoys: pb,
+              presentGirls: pg,
+              present: pt
+            };
+          }
+        }
+
+        // Grand totals
+        let grand = {
+          totalBoys: 0,
+          totalGirls: 0,
+          total: 0,
+          absentBoys: 0,
+          absentGirls: 0,
+          absent: 0,
+          presentBoys: 0,
+          presentGirls: 0,
+          present: 0
+        };
+
+        if (totalRow) {
+          const nums = totalRow.slice(1).map(v => parseInt(v, 10) || 0);
+          const [tb, tg, tt, ab, ag, at, pb, pg, pt] = nums;
+          grand = {
+            totalBoys: tb,
+            totalGirls: tg,
+            total: tt,
+            absentBoys: ab,
+            absentGirls: ag,
+            absent: at,
+            presentBoys: pb,
+            presentGirls: pg,
+            present: pt
+          };
+        } else {
+          Object.values(classBreakdown).forEach(c => {
+            grand.totalBoys += c.totalBoys;
+            grand.totalGirls += c.totalGirls;
+            grand.total += c.total;
+            grand.absentBoys += c.absentBoys;
+            grand.absentGirls += c.absentGirls;
+            grand.absent += c.absent;
+            grand.presentBoys += c.presentBoys;
+            grand.presentGirls += c.presentGirls;
+            grand.present += c.present;
+          });
+        }
+
+        // Compute day name, prefer explicit weekday label from sheet if present
+        let dayName = dayLabel || '';
+        if (!dayName && dateStr) {
+          const parts = dateStr.split('-'); // e.g. 22-Nov-2025
+          if (parts.length === 3) {
+            const [d, monStr, y] = parts;
+            const monthMap = {
+              'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+              'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+            const m = monthMap[monStr];
+            if (m !== undefined) {
+              const dt = new Date(parseInt(y, 10), m, parseInt(d, 10));
+              if (!isNaN(dt.getTime())) {
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                dayName = days[dt.getDay()];
+              }
+            }
+          }
+        }
+        if (!dayName) {
+          const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+          dayName = days[new Date().getDay()];
+        }
+
+        return {
+          success: true,
+          day: dayName,
+          date: dateStr || new Date().toLocaleDateString('en-GB').replace(/\//g, '-'),
+          classBreakdown: classBreakdown,
+          total: grand,
+          percent: percentStr || ''
+        };
+      } catch (e) {
+        console.error('Error parsing Roznamcha CSV:', e);
+        return null;
+      }
+    }
+function renderRoznamcha(data) {
+      const container = document.getElementById('roznamchaContent');
+      if (!container) return;
+      
+      const { day, date, classBreakdown } = data;
+      
+      // Sort classes in fixed logical order
+      const preferredOrder = ['Kachi', 'One', 'Two', 'Three', 'Four', 'Five'];
+      const sortedClasses = [];
+
+      preferredOrder.forEach(cls => {
+        if (classBreakdown[cls]) {
+          sortedClasses.push(cls);
+        }
+      });
+
+      Object.keys(classBreakdown).forEach(cls => {
+        if (!preferredOrder.includes(cls)) {
+          sortedClasses.push(cls);
+        }
+      });
+
+      // Calculate totals
+      let grandTotalBoys = 0, grandTotalGirls = 0, grandTotal = 0;
+      let grandAbsentBoys = 0, grandAbsentGirls = 0, grandAbsent = 0;
+      let grandPresentBoys = 0, grandPresentGirls = 0, grandPresent = 0;
+      
+      sortedClasses.forEach(className => {
+        const c = classBreakdown[className];
+        grandTotalBoys += c.totalBoys;
+        grandTotalGirls += c.totalGirls;
+        grandTotal += c.total;
+        grandAbsentBoys += c.absentBoys;
+        grandAbsentGirls += c.absentGirls;
+        grandAbsent += c.absent;
+        grandPresentBoys += c.presentBoys;
+        grandPresentGirls += c.presentGirls;
+        grandPresent += c.present;
+      });
+      
+      const presentPercentage = grandTotal > 0 ? Math.round((grandPresent / grandTotal) * 100) : 0;
+      
+      let html = `
+        <div class="roznamcha-wrapper" id="roznamchaWrapper">
+          <div class="roznamcha-title-bar">
+            روزنامچہ حاضری گورنمنٹ پرائمری سکول شہنووال مرکز شمس کے
+          </div>
+          
+          <div class="roznamcha-refresh-info">
+            <div class="live-led" id="liveDot"></div>
+            <span>Auto-refreshes every 1 minute | Last updated: ${new Date().toLocaleTimeString('en-GB')}</span>
+          </div>
+          
+          <div class="roznamcha-scroll">
+<table class="roznamcha-table">
+            <tr>
+              <th class="day-header" rowspan="2">${day}</th>
+              <th class="section-header" colspan="3">کل تعداد طلباء</th>
+              <th class="section-header" colspan="3">غیر حاضر طلباء</th>
+              <th class="section-header" colspan="3">حاضر طلباء</th>
+            </tr>
+            <tr>
+              <th class="sub-header">Boys</th>
+              <th class="sub-header">Girls</th>
+              <th class="sub-header">Total</th>
+              <th class="sub-header">Boys</th>
+              <th class="sub-header">Girls</th>
+              <th class="sub-header">Total</th>
+              <th class="sub-header">Boys</th>
+              <th class="sub-header">Girls</th>
+              <th class="sub-header">Total</th>
+            </tr>
+      `;
+      
+      sortedClasses.forEach(className => {
+        const c = classBreakdown[className];
+        const urduName = CLASS_NAMES_URDU[className] || className;
+        
+        html += `
+          <tr>
+            <td class="class-name-cell">
+              <span class="class-name-mixed">${className} – <span class="urdu-inline">${urduName}</span></span>
+            </td>
+            <td class="data-cell">${c.totalBoys}</td>
+            <td class="data-cell">${c.totalGirls}</td>
+            <td class="data-cell">${c.total}</td>
+            <td class="data-cell">${c.absentBoys}</td>
+            <td class="data-cell">${c.absentGirls}</td>
+            <td class="data-cell">${c.absent}</td>
+            <td class="data-cell">${c.presentBoys}</td>
+            <td class="data-cell">${c.presentGirls}</td>
+            <td class="data-cell">${c.present}</td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            <tr class="total-row">
+              <td>Total</td>
+              <td>${grandTotalBoys}</td>
+              <td>${grandTotalGirls}</td>
+              <td>${grandTotal}</td>
+              <td>${grandAbsentBoys}</td>
+              <td>${grandAbsentGirls}</td>
+              <td>${grandAbsent}</td>
+              <td>${grandPresentBoys}</td>
+              <td>${grandPresentGirls}</td>
+              <td>${grandPresent}</td>
+            </tr>
+          </table>
+</div>
+          
+          <div class="roznamcha-footer">
+            <div class="roznamcha-footer-cell roznamcha-footer-date">
+              <strong>Date:</strong> ${date}
+            </div>
+            <div class="roznamcha-footer-cell roznamcha-footer-percent">
+              ${presentPercentage}%
+            </div>
+            <div class="roznamcha-footer-cell roznamcha-footer-label">
+              مجموعی حاضری
+            </div>
+          </div>
+          
+          <div class="roznamcha-buttons-container" id="roznamchaButtons">
+            <button class="roznamcha-screenshot-btn" onclick="captureRoznamcha()" title="Take Screenshot">
+              <div class="btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+              </div>
+              <span class="btn-text">Capture</span>
+            </button>
+            
+            <button class="roznamcha-whatsapp-btn" onclick="shareToWhatsApp()" title="Share via WhatsApp">
+              <div class="btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+              </div>
+              <span class="btn-text">WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+    }
+
+    function showRoznamchaError(message) {
+      const container = document.getElementById('roznamchaContent');
+      if (!container) return;
+      
+      container.innerHTML = `
+        <div class="roznamcha-error">
+          <h3>❌ Unable to Load Roznamcha</h3>
+          <p style="margin-top:8px;">${message}</p>
+          <button onclick="loadRoznamchaData()" class="btn-primary" style="margin-top:16px;padding:12px 24px;">
+            🔄 Retry
+          </button>
+        </div>
+      `;
+    }
+
+    function startRoznamchaAutoRefresh() {
+      if (g_roznamchaInterval) {
+        clearInterval(g_roznamchaInterval);
+      }
+      if (g_roznamchaLedInterval) {
+        clearInterval(g_roznamchaLedInterval);
+      }
+
+      g_roznamchaInterval = setInterval(() => {
+        console.log('🔄 Auto-refreshing Roznamcha data...');
+        loadRoznamchaData();
+      }, ROZNAMCHA_REFRESH_INTERVAL);
+
+      g_roznamchaLedInterval = setInterval(() => {
+        const dot = document.getElementById('liveDot');
+        if (dot) {
+          dot.classList.toggle('live-blink');
+        }
+      }, 600);
+
+      console.log(`✅ Roznamcha auto-refresh started (every ${ROZNAMCHA_REFRESH_INTERVAL/1000/60} minutes)`);
+    }
+
+    function stopRoznamchaAutoRefresh() {
+      if (g_roznamchaInterval) {
+        clearInterval(g_roznamchaInterval);
+        g_roznamchaInterval = null;
+      }
+      if (g_roznamchaLedInterval) {
+        clearInterval(g_roznamchaLedInterval);
+        g_roznamchaLedInterval = null;
+      }
+      const dot = document.getElementById('liveDot');
+      if (dot) {
+        dot.classList.remove('live-blink');
+      }
+      console.log('⏹️ Roznamcha auto-refresh stopped');
+    }
+
+    // ===== ROZNAMCHA SCREENSHOT FUNCTION =====
+    async function captureRoznamcha() {
+      const wrapper = document.getElementById('roznamchaWrapper');
+      const buttonsContainer = document.getElementById('roznamchaButtons');
+      
+      if (!wrapper) {
+        alert('Roznamcha not found!');
+        return;
+      }
+
+      try {
+        // Load dom-to-image library (better for fonts)
+        if (typeof domtoimage === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js';
+          document.head.appendChild(script);
+          
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = reject;
+          });
+        }
+
+        // Show loading message
+        const btn = document.querySelector('.roznamcha-screenshot-btn .btn-text');
+        const originalText = btn.textContent;
+        btn.textContent = 'Wait...';
+
+        // HIDE BUTTONS before capturing
+        if (buttonsContainer) {
+          buttonsContainer.style.display = 'none';
+        }
+
+        // Wait for fonts to load
+        await document.fonts.ready;
+        
+        // Small delay to ensure buttons are hidden and fonts loaded
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Capture using dom-to-image (better font support)
+        const dataUrl = await domtoimage.toPng(wrapper, {
+          quality: 1.0,
+          bgcolor: '#ffffff',
+          cacheBust: true,
+          style: {
+            'font-family': "'Noto Nastaliq Urdu', 'Inter', serif"
+          }
+        });
+
+        // SHOW BUTTONS again
+        if (buttonsContainer) {
+          buttonsContainer.style.display = 'flex';
+        }
+
+        // Download the image
+        const link = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        link.download = `Roznamcha_${date}.png`;
+        link.href = dataUrl;
+        link.click();
+
+        // Success message
+        btn.textContent = 'Done!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 1500);
+
+      } catch (error) {
+        console.error('Screenshot error:', error);
+        alert('Failed to capture screenshot. Please try again.');
+        
+        // SHOW BUTTONS again in case of error
+        if (buttonsContainer) {
+          buttonsContainer.style.display = 'flex';
+        }
+        
+        const btn = document.querySelector('.roznamcha-screenshot-btn .btn-text');
+        if (btn) btn.textContent = 'Capture';
+      }
+    }
+
+    // ===== WHATSAPP DIRECT SHARE FUNCTION =====
+    async function shareToWhatsApp() {
+      const wrapper = document.getElementById('roznamchaWrapper');
+      const buttonsContainer = document.getElementById('roznamchaButtons');
+      
+      if (!wrapper) {
+        alert('Roznamcha not found!');
+        return;
+      }
+
+      try {
+        // Load dom-to-image library
+        if (typeof domtoimage === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js';
+          document.head.appendChild(script);
+          
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = reject;
+          });
+        }
+
+        // Show loading
+        const btn = document.querySelector('.roznamcha-whatsapp-btn .btn-text');
+        const originalText = btn.textContent;
+        btn.textContent = 'Wait...';
+
+        // HIDE BUTTONS before capturing
+        if (buttonsContainer) {
+          buttonsContainer.style.display = 'none';
+        }
+
+        // Wait for fonts to load
+        await document.fonts.ready;
+        
+        // Small delay
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Capture using dom-to-image
+        const blob = await domtoimage.toBlob(wrapper, {
+          quality: 1.0,
+          bgcolor: '#ffffff',
+          cacheBust: true,
+          style: {
+            'font-family': "'Noto Nastaliq Urdu', 'Inter', serif"
+          }
+        });
+
+        // SHOW BUTTONS again
+        if (buttonsContainer) {
+          buttonsContainer.style.display = 'flex';
+        }
+
+        const date = new Date().toISOString().split('T')[0];
+        const file = new File([blob], `Roznamcha_${date}.png`, { type: 'image/png' });
+
+        // Check if we can use native share
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Roznamcha حاضری',
+              text: `GPS Sheinwal Roznamcha - ${date}`
+            });
+            
+            btn.textContent = 'Shared!';
+            setTimeout(() => {
+              btn.textContent = originalText;
+            }, 2000);
+          } catch (shareError) {
+            if (shareError.name !== 'AbortError') {
+              console.error('Share error:', shareError);
+              directWhatsAppShare(file, date, btn, originalText);
+            } else {
+              btn.textContent = originalText;
+            }
+          }
+        } else {
+          directWhatsAppShare(file, date, btn, originalText);
+        }
+
+      } catch (error) {
+        console.error('WhatsApp share error:', error);
+        alert('Failed to share. Please try again.');
+        
+        if (buttonsContainer) {
+          buttonsContainer.style.display = 'flex';
+        }
+        
+        const btn = document.querySelector('.roznamcha-whatsapp-btn .btn-text');
+        if (btn) btn.textContent = 'WhatsApp';
+      }
+    }
+
+    function directWhatsAppShare(file, date, btn, originalText) {
+      // Download the file first
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.download = `Roznamcha_${date}.png`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      // Open WhatsApp directly
+      const message = encodeURIComponent(`روزنامچہ حاضری - ${date}\nGPS Sheinwal`);
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      let whatsappUrl;
+      if (isMobile) {
+        whatsappUrl = `whatsapp://send?text=${message}`;
+      } else {
+        whatsappUrl = `https://web.whatsapp.com/send?text=${message}`;
+      }
+      
+      window.open(whatsappUrl, '_blank');
+
+      btn.textContent = 'Done!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    }
+
+    // ===== COPY TO CLIPBOARD FUNCTION =====
+    function copyToClipboard(text, buttonId) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(buttonId);
+        const originalHTML = btn.innerHTML;
+        
+        btn.innerHTML = '✅ Copied!';
+        btn.classList.add('copied');
+        
+        const toast = document.getElementById('copyToast');
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('copied');
+          toast.classList.remove('show');
+        }, 2000);
+      }).catch(err => {
+        alert('❌ Failed to copy to clipboard');
+        console.error('Copy failed:', err);
+      });
+    }
+
+    window.copyToClipboard = copyToClipboard;
+
+    // ===== MODERN SYSTEM INFO =====
+    // ===== V40.03: LEAVE SCHOOL TOGGLE FUNCTIONS =====
+    
+    /**
+     * Load Leave School toggle status from localStorage and server
+     */
+    function loadLeaveSchoolStatus() {
+      // Load from localStorage first
+      const savedStatus = localStorage.getItem('leaveSchoolEnabled');
+      if (savedStatus !== null) {
+        const isEnabled = savedStatus === 'true';
+        document.getElementById('leaveSchoolToggle').checked = isEnabled;
+        updateLeaveSchoolStatusText(isEnabled);
+      } else {
+        // Default to OFF (false)
+        document.getElementById('leaveSchoolToggle').checked = false;
+        updateLeaveSchoolStatusText(false);
+      }
+      
+      console.log('✅ Leave School toggle loaded');
+    }
+    
+    /**
+     * Update status text based on toggle state
+     */
+    function updateLeaveSchoolStatusText(isEnabled) {
+      const statusText = document.getElementById('leaveSchoolStatusText');
+      if (!statusText) return;
+      
+      if (isEnabled) {
+        statusText.innerHTML = '<span style="color:var(--ok);font-weight:700;font-size:15px;">✅ PRESENT - Unlocked</span>';
+      } else {
+        statusText.innerHTML = '<span style="color:var(--bad);font-weight:700;font-size:15px;">❌ ABSENT - Locked</span>';
+      }
+    }
+    
+    /**
+     * Handle toggle switch change
+     */
+    async function toggleLeaveSchoolStatus() {
+      const checkbox = document.getElementById('leaveSchoolToggle');
+      const isEnabled = checkbox.checked;
+      
+      // Show loading state
+      const statusText = document.getElementById('leaveSchoolStatusText');
+      statusText.innerHTML = '<span style="color:var(--muted);font-weight:600;">⏳ Updating...</span>';
+      
+      try {
+        // Call API
+        const url = `${SCRIPT_URL}?action=toggleLeaveSchool&enabled=${isEnabled}`;
+        console.log(`🔄 Toggling Leave School: ${isEnabled ? 'PRESENT' : 'ABSENT'}`);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          cache: 'no-cache'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Save to localStorage
+          localStorage.setItem('leaveSchoolEnabled', isEnabled);
+          
+          // Update status text
+          updateLeaveSchoolStatusText(isEnabled);
+          
+          // Show success message
+          const message = isEnabled 
+            ? '✅ Leave School students can now be marked PRESENT' 
+            : '❌ Leave School students will be marked ABSENT';
+          
+          showToast(message, 'success');
+          console.log(`✅ ${message}`);
+          
+        } else {
+          // Revert checkbox on error
+          checkbox.checked = !isEnabled;
+          updateLeaveSchoolStatusText(!isEnabled);
+          
+          showToast('❌ Failed to update: ' + (data.error || 'Unknown error'), 'error');
+          console.error('❌ Toggle failed:', data.error);
+        }
+        
+      } catch (error) {
+        // Revert checkbox on network error
+        checkbox.checked = !isEnabled;
+        updateLeaveSchoolStatusText(!isEnabled);
+        
+        showToast('❌ Network error: ' + error.message, 'error');
+        console.error('❌ Toggle error:', error);
+      }
+    }
+    
+    /**
+     * Show toast notification
+     */
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('copyToast');
+      if (!toast) return;
+      
+      toast.textContent = message;
+      toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function updateSystemInfo() {
+      const content = document.getElementById('systemInfoContent');
+      if (!content) return;
+      
+      const totalStudents = g_students.length;
+      const currentDateTime = new Date().toLocaleString('en-GB', { 
+        timeZone: 'Asia/Karachi',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      
+      const dataStatus = g_dataLoadStatus === 'success';
+      const memoryAvailable = 'N/A KB';
+      
+      content.innerHTML = `
+        <!-- System Connectivity Section -->
+        <div class="system-section-card">
+          <div class="system-section-header">
+            <div class="system-section-icon">🌐</div>
+            <div class="system-section-title">
+              <h3>System Connectivity</h3>
+              <p>Hardware and network connection status</p>
+            </div>
+          </div>
+          <div class="system-info-grid">
+            <div class="system-info-item">
+              <div class="system-info-item-icon">✅</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">SPIFFS Mount</div>
+                <div class="system-info-item-value">
+                  <span class="system-status-badge">OK</span>
+                </div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">✅</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">RC522 Scanner</div>
+                <div class="system-info-item-value">
+                  <span class="system-status-badge">Ready</span>
+                </div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">📶</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">WiFi Connection</div>
+                <div class="system-info-item-value">
+                  <span class="system-status-badge">Connected</span>
+                </div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">⏳</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">NTP Time Sync</div>
+                <div class="system-info-item-value">
+                  <span class="system-status-badge">OK</span>
+                </div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">${dataStatus ? '✅' : '❌'}</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">Students Data Download</div>
+                <div class="system-info-item-value">
+                  <span class="system-status-badge ${dataStatus ? '' : 'error'}">${dataStatus ? 'OK' : 'Failed'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Information Section -->
+        <div class="system-section-card">
+          <div class="system-section-header">
+            <div class="system-section-icon">⚙️</div>
+            <div class="system-section-title">
+              <h3>System Information</h3>
+              <p>Device details and configuration</p>
+            </div>
+          </div>
+          <div class="system-info-grid">
+            <div class="system-info-item">
+              <div class="system-info-item-icon">🌐</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">IP Address</div>
+                <div class="system-info-item-value">${IP_ADDRESS}</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">🔗</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">MAC Address</div>
+                <div class="system-info-item-value">${MAC_ADDRESS}</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">📡</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">RF Scanner Model</div>
+                <div class="system-info-item-value">${SCANNER_MODEL}</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">📶</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">WiFi Network</div>
+                <div class="system-info-item-value">${WIFI_SSID}</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">👥</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">Total Students Loaded</div>
+                <div class="system-info-item-value">${totalStudents} students</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">💾</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">ESP-32 Memory Available</div>
+                <div class="system-info-item-value">${memoryAvailable}</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">🔧</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">Firmware Version</div>
+                <div class="system-info-item-value">${FIRMWARE_VERSION}</div>
+              </div>
+            </div>
+            <div class="system-info-item">
+              <div class="system-info-item-icon">📱</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">Script Version</div>
+                <div class="system-info-item-value">${SCRIPT_VERSION}</div>
+              </div>
+            </div>
+            <div class="system-info-item" style="grid-column: 1 / -1;">
+              <div class="system-info-item-icon">🕒</div>
+              <div class="system-info-item-content">
+                <div class="system-info-item-label">Current Date & Time</div>
+                <div class="system-info-item-value">${currentDateTime}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🎯 Leave School Control Section (V40.03 NEW) -->
+        <div class="system-section-card">
+          <div class="system-section-header">
+            <div class="system-section-icon">🎯</div>
+            <div class="system-section-title">
+              <h3>Leave School Attendance Control</h3>
+              <p>Control whether "Leave School" students can be marked present or absent</p>
+            </div>
+          </div>
+          <div style="padding:20px;background:var(--brand-light);border-radius:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div style="flex:1;">
+                <div style="font-weight:700;font-size:16px;margin-bottom:6px;color:var(--text);">
+                  Mark Leave School Students As:
+                </div>
+                <div id="leaveSchoolStatusText" style="font-size:14px;color:var(--muted);">
+                  Loading...
+                </div>
+              </div>
+              <label class="leave-toggle-switch">
+                <input type="checkbox" id="leaveSchoolToggle" onchange="toggleLeaveSchoolStatus()">
+                <span class="leave-toggle-slider"></span>
+              </label>
+            </div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.6;padding:12px;background:white;border-radius:8px;border:1px solid var(--border);">
+              <strong>How it works:</strong><br>
+              • <strong>OFF (Red):</strong> Leave School students locked as <span style="color:var(--bad);font-weight:600;">ABSENT</span> - cannot mark present<br>
+              • <strong>ON (Green):</strong> Leave School students unlocked - can mark <span style="color:var(--ok);font-weight:600;">PRESENT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Software Information Section -->
+        <div class="system-section-card">
+          <div class="system-section-header">
+            <div class="system-section-icon">💻</div>
+            <div class="system-section-title">
+              <h3>Software Information</h3>
+              <p>Application links and configuration IDs</p>
+            </div>
+          </div>
+          <div style="display:grid;gap:16px;">
+            <div class="software-link-item">
+              <div class="software-link-icon">📊</div>
+              <div class="software-link-content">
+                <div class="software-link-label">Google Sheet Link</div>
+                <div class="software-link-value">${SHEET_LINK}</div>
+              </div>
+              <button class="btn-copy" id="btnCopySheetLink" onclick="copyToClipboard('${SHEET_LINK}', 'btnCopySheetLink')">
+                📋 Copy
+              </button>
+            </div>
+            <div class="software-link-item">
+              <div class="software-link-icon">📄</div>
+              <div class="software-link-content">
+                <div class="software-link-label">CSV Data Link</div>
+                <div class="software-link-value">${CSV_URL}</div>
+              </div>
+              <button class="btn-copy" id="btnCopyCsvLink" onclick="copyToClipboard('${CSV_URL}', 'btnCopyCsvLink')">
+                📋 Copy
+              </button>
+            </div>
+            <div class="software-link-item">
+              <div class="software-link-icon">🚀</div>
+              <div class="software-link-content">
+                <div class="software-link-label">Deployment Link</div>
+                <div class="software-link-value">${DEPLOYMENT_LINK}</div>
+              </div>
+              <button class="btn-copy" id="btnCopyDeployLink" onclick="copyToClipboard('${DEPLOYMENT_LINK}', 'btnCopyDeployLink')">
+                📋 Copy
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveToLocalStorage() {
+      const today = new Date().toLocaleDateString('en-GB');
+      localStorage.setItem('attendanceDate', today);
+      localStorage.setItem('todayAttendance', JSON.stringify(g_todayAttendance));
+      localStorage.setItem('allAttendance', JSON.stringify(g_allAttendance));
+      localStorage.setItem('selectedUIDs', JSON.stringify([...g_selectedUIDs]));
+      localStorage.setItem('sessionStats', JSON.stringify(g_sessionStats));
+      localStorage.setItem('pendingUploads', JSON.stringify(g_pendingUploads));
+    }
+
+    function loadFromLocalStorage() {
+      const today = new Date().toLocaleDateString('en-GB');
+      const storedDate = localStorage.getItem('attendanceDate');
+      
+      if (storedDate === today) {
+        const attendance = localStorage.getItem('todayAttendance');
+        const allAttendance = localStorage.getItem('allAttendance');
+        const selected = localStorage.getItem('selectedUIDs');
+        const stats = localStorage.getItem('sessionStats');
+        const pending = localStorage.getItem('pendingUploads');
+        
+        if (attendance) g_todayAttendance = JSON.parse(attendance);
+        if (allAttendance) g_allAttendance = JSON.parse(allAttendance);
+        if (selected) g_selectedUIDs = new Set(JSON.parse(selected));
+        if (stats) g_sessionStats = JSON.parse(stats);
+        if (pending) g_pendingUploads = JSON.parse(pending);
+        
+        console.log('✅ Loaded from localStorage');
+        
+        if (g_pendingUploads.length > 0) {
+          console.log(`🔄 Found ${g_pendingUploads.length} pending uploads`);
+          setTimeout(processPendingUploads, 2000);
+        }
+      } else {
+        localStorage.removeItem('todayAttendance');
+        localStorage.removeItem('selectedUIDs');
+        g_todayAttendance = {};
+        g_selectedUIDs = new Set();
+      }
+    }
+
+    document.getElementById('loginBtn')?.addEventListener('click', handleLogin);
+    document.getElementById('pinInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    function handleLogin() {
+      const pin = document.getElementById('pinInput').value.trim();
+      const errorEl = document.getElementById('loginError');
+      
+      if (pin === PIN) {
+        errorEl.textContent = '';
+        document.getElementById('viewLogin').classList.add('hidden');
+        document.getElementById('viewMain').classList.remove('hidden');
+        initializeApp();
+      } else {
+        errorEl.textContent = '❌ Invalid Password!';
+        setTimeout(() => errorEl.textContent = '', 3000);
+      }
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB');
+      const timeStr = now.toLocaleTimeString('en-GB');
+      const el = document.getElementById('loginDateTime');
+      if (el) el.textContent = `${dateStr} ${timeStr}`;
+    }, 1000);
+
+    function initializeApp() {
+      console.log('🚀 Initializing GPS Sheinwal App v15.7 (UID-Free + V43.2 Integration)...');
+      loadFromLocalStorage();
+      loadAllStudentsFast();
+      
+      // 🔴 V11.0: Set default class to "Kachi" and trigger sync
+      const classSelect = document.getElementById('classSelect');
+      if (classSelect) {
+        classSelect.value = 'Kachi';
+        filterAndRender();
+        
+        // Immediately fetch leave status for default class
+        setTimeout(async () => {
+          const leave = await fetchLeaveStatus('Kachi');
+          if (leave && leave.success) {
+            applyLeaveStatus('Kachi', leave);
+          }
+        }, 500);
+      }
+      
+      startAutoSync();       // pending uploads (5 min)
+      startClassAutoSync();  // sheet & leave sync (1 min)
+    }
+
+    function startAutoSync() {
+      if (g_autoSyncInterval) clearInterval(g_autoSyncInterval);
+      g_autoSyncInterval = setInterval(() => {
+        console.log('🔄 Auto-sync (pending uploads) triggered...');
+        saveToLocalStorage();
+        if (g_pendingUploads.length > 0) {
+          processPendingUploads();
+        }
+      }, 5 * 60 * 1000); // 5 minutes (pending upload retry)
+    }
+
+    document.querySelectorAll('.main-tabs button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.main-tabs button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const sections = ['sectionAttendance', 'sectionReports', 'sectionRoznamcha', 'sectionSystemInfo'];
+        sections.forEach(s => {
+          const el = document.getElementById(s);
+          if (el) el.classList.add('hidden');
+        });
+        
+        if (e.target.id === 'tabAttendance') {
+          document.getElementById('sectionAttendance')?.classList.remove('hidden');
+          stopRoznamchaAutoRefresh();
+        }
+        if (e.target.id === 'tabReports') {
+          document.getElementById('sectionReports')?.classList.remove('hidden');
+          stopRoznamchaAutoRefresh();
+        }
+        if (e.target.id === 'tabRoznamcha') {
+          document.getElementById('sectionRoznamcha')?.classList.remove('hidden');
+          loadRoznamchaData(); // Load immediately
+          startRoznamchaAutoRefresh(); // Start auto-refresh
+        }
+        if (e.target.id === 'tabSystemInfo') {
+          document.getElementById('sectionSystemInfo')?.classList.remove('hidden');
+          updateSystemInfo();
+          loadLeaveSchoolStatus(); // V40.03: Load toggle status
+          stopRoznamchaAutoRefresh();
+        }
+      });
+    });
+
+    document.querySelectorAll('.sub-tabs button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.sub-tabs button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        const sections = ['subSectionManual', 'subSectionQR', 'subSectionStudentInfo'];
+        sections.forEach(s => {
+          const el = document.getElementById(s);
+          if (el) el.classList.add('hidden');
+        });
+        
+        if (e.target.id === 'subTabManual') document.getElementById('subSectionManual')?.classList.remove('hidden');
+        if (e.target.id === 'subTabQR') document.getElementById('subSectionQR')?.classList.remove('hidden');
+        if (e.target.id === 'subTabStudentInfo') document.getElementById('subSectionStudentInfo')?.classList.remove('hidden');
+      });
+    });
+
+    // =======================
+    // CLASS CHANGE WITH SYNC
+    // =======================
+    document.getElementById('classSelect')?.addEventListener('change', async (e) => {
+      const cls = e.target.value;
+
+      // Step 1: Load normally
+      filterAndRender();
+
+      // ✅ V12.17: Sync ALL classes on class change (not just selected)
+      console.log('🔄 V12.17: Class changed - syncing ALL classes');
+      await syncAllClassesOnLoad();
+    });
+
+    
+    // ===========================
+    // LEAVE DETAIL MENU (3-DOT)
+    // ===========================
+    let g_leaveMenuStudent = null;
+
+    function findStudentByIdentifier(id) {
+      if (!g_filteredStudents || !Array.isArray(g_filteredStudents)) return null;
+      return g_filteredStudents.find(s => s.identifier === id) || null;
+    }
+
+    function resetLeaveForm() {
+      const today = new Date().toISOString().split('T')[0];
+      const radios = document.querySelectorAll('#leaveMenuModal input[name="leaveType"]');
+      radios.forEach(r => { r.checked = false; });
+      const fromInput = document.getElementById('leaveFromDate');
+      const toInput   = document.getElementById('leaveToDate');
+      const commentEl = document.getElementById('leaveComment');
+      if (fromInput) fromInput.value = today;
+      if (toInput)   toInput.value   = today;
+      if (commentEl) commentEl.value = '';
+    }
+
+    function openLeaveMenu(identifier) {
+      const student = findStudentByIdentifier(identifier);
+      if (!student) {
+        alert('Student not found for leave menu');
+        return;
+      }
+      g_leaveMenuStudent = student;
+      resetLeaveForm();
+      const label = document.getElementById('leaveMenuStudentLabel');
+      if (label) {
+        // Show only student name in beautiful style
+        label.textContent = student.name;
+      }
+      const statusEl = document.getElementById('leaveMenuCurrentLeave');
+      if (statusEl) {
+        const detail = student.leaveLabel || '';
+        if (detail) {
+          statusEl.textContent = 'Current leave: ' + detail;
+        } else {
+          statusEl.textContent = 'No active leave record for this student.';
+        }
+      }
+      const modal = document.getElementById('leaveMenuModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        // Add click-outside-to-close functionality
+        setTimeout(() => {
+          modal.addEventListener('click', handleModalBackdropClick);
+        }, 100);
+      }
+    }
+
+    function handleModalBackdropClick(e) {
+      const modal = document.getElementById('leaveMenuModal');
+      const modalCard = modal?.querySelector('.leave-modal-card');
+      // Close if clicked outside the card
+      if (e.target === modal && !modalCard?.contains(e.target)) {
+        closeLeaveMenu();
+      }
+    }
+
+    // ✅ V12.12: NEW - Mark attendance from leave menu (to unlock locked students)
+    function markAttendanceFromMenu(newStatus) {
+      if (!g_leaveMenuStudent) {
+        console.error('❌ No student selected in leave menu');
+        return;
+      }
+
+      const identifier = g_leaveMenuStudent.identifier;
+
+      // Mark this as a recent manual change to prevent auto-sync override
+      if (typeof g_recentManualChanges !== 'undefined' && g_recentManualChanges) {
+        g_recentManualChanges.set(identifier, Date.now());
+      }
+
+      console.log(`🔄 Manual change from leave menu: ${identifier} → ${newStatus}`);
+
+      // Reuse core attendance logic (handles upload + SMS + leave handling)
+      markStudentAttendance(identifier, newStatus);
+
+      // Close menu
+      closeLeaveMenu();
+    }
+    
+    function closeLeaveMenu() {
+      const modal = document.getElementById('leaveMenuModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.removeEventListener('click', handleModalBackdropClick);
+      }
+      g_leaveMenuStudent = null;
+    }
+
+    
+
+// ✅ V12.0: Send leave detail with enhanced validation and error handling
+async function sendLeaveDetail(student, leaveType, fromDate, toDate, comment) {
+  if (!student) {
+    console.error('❌ Student information missing for leave detail');
+    alert('Student information missing for leave detail.');
+    return { success: false, error: 'Student missing' };
+  }
+
+  if (!SCRIPT_URL) {
+    console.error('❌ SCRIPT_URL not configured');
+    alert('SCRIPT_URL not configured');
+    return { success: false, error: 'SCRIPT_URL not configured' };
+  }
+  
+  // ✅ V12.0: Validate leave type
+  const validLeaveTypes = ['leave_school', 'sick', 'casual', 'comment'];
+  if (!validLeaveTypes.includes(leaveType)) {
+    console.warn(`⚠️ Invalid leave type: ${leaveType}, defaulting to 'comment'`);
+    leaveType = 'comment';
+  }
+
+  try {
+    let url = `${SCRIPT_URL}?action=addleave`;
+
+    const uid = student.uid || "";
+    const sr  = student.srNo || "";
+
+    const enr =
+      student.enrollment ||
+      student.enrolment ||
+      student.enrollmentNo ||
+      student.enrNo ||
+      student.enr ||
+      student.id ||
+      "";
+
+    // ✅ V12.0: Validate required fields
+    if (!enr && !uid && !sr) {
+      console.error('❌ No valid identifier (UID/SR/Enrollment) for student:', student.name);
+      alert('❌ Cannot send leave: No valid student identifier');
+      return { success: false, error: 'No student identifier' };
+    }
+
+    url += `&uid=${encodeURIComponent(uid)}`;
+    url += `&sr=${encodeURIComponent(sr)}`;
+    url += `&enrollment=${encodeURIComponent(enr)}`;
+    url += `&name=${encodeURIComponent(student.name || "")}`;
+    url += `&class=${encodeURIComponent(student.class || "")}`;
+    url += `&father=${encodeURIComponent(student.father || "")}`;
+    url += `&mobile=${encodeURIComponent(student.mobile || "")}`;
+
+    // ✅ V12.0: Send both leaveType and leavetype for backwards compatibility
+    url += `&leaveType=${encodeURIComponent(leaveType || "")}`;
+    url += `&leavetype=${encodeURIComponent(leaveType || "")}`;
+
+    url += `&from=${encodeURIComponent(fromDate || "")}`;
+    url += `&to=${encodeURIComponent(toDate || "")}`;
+    url += `&comment=${encodeURIComponent(comment || "")}`;
+
+    console.log('📤 Sending leave detail:', {
+      student: student.name,
+      type: leaveType,
+      from: fromDate,
+      to: toDate
+    });
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
+    const data = await res.json();
+    
+    console.log('📥 Leave detail response:', data);
+
+    if (!data.success) {
+      const errorMsg = data.error || "Unknown error";
+      console.error("❌ Error saving leave:", errorMsg);
+      alert("Error saving leave: " + errorMsg);
+      return { success: false, error: errorMsg };
+    }
+    
+    console.log('✅ Leave detail saved successfully');
+    return data;
+  } catch (err) {
+    console.error("❌ Error sending leave detail:", err);
+    alert("Error sending leave detail: " + err.message);
+    return { success: false, error: err.message };
+  }
+}
+async function submitLeaveForm() {
+  if (!g_leaveMenuStudent) {
+    console.warn('⚠️ No student selected for leave form');
+    closeLeaveMenu();
+    return;
+  }
+
+  const student = g_leaveMenuStudent;
+
+  const selectedRadio = document.querySelector('#leaveMenuModal input[name="leaveType"]:checked');
+  if (!selectedRadio) {
+    alert('❌ Please select a leave type');
+    return;
+  }
+
+  const fromInput = document.getElementById('leaveFromDate');
+  const toInput   = document.getElementById('leaveToDate');
+  const commentEl = document.getElementById('leaveComment');
+  const today = new Date().toISOString().split('T')[0];
+
+  const fromDate = fromInput ? (fromInput.value || today) : today;
+  const toDate   = toInput   ? (toInput.value   || fromDate) : fromDate;
+  const comment  = commentEl ? commentEl.value.trim() : '';
+
+  // ✅ V12.0: Validate date range
+  if (new Date(fromDate) > new Date(toDate)) {
+    alert('❌ End date cannot be before start date!');
+    return;
+  }
+
+  // When any leave is selected, mark this student absent locally for today
+  const id = student.identifier;
+  if (id) {
+    g_todayAttendance[id] = 'absent';
+    g_selectedUIDs.delete(id);
+    saveToLocalStorage();
+    renderStudentList();
+  }
+
+  closeLeaveMenu();
+
+  const type = selectedRadio.value;
+  let fDate = fromDate;
+  let tDate = toDate;
+
+  if (type === 'comment') {
+    fDate = '';
+    tDate = '';
+  }
+  
+  // ✅ V12.0: Set leaveType and leaveActive immediately for instant color change
+  student.leaveType = type;
+  student.leaveActive = true;
+  
+  // Create proper leaveLabel based on type
+  if (type === 'leave_school') {
+    student.leaveLabel = 'Leave School';
+  } else if (type === 'sick') {
+    student.leaveLabel = `Sick Leave`;
+  } else if (type === 'casual') {
+    student.leaveLabel = `Casual Leave`;
+  }
+  
+  // Re-render to show new color immediately
+  renderStudentList();
+
+  console.log(`📝 Submitting leave: ${student.name} | Type: ${type} | ${fDate} to ${tDate}`);
+
+  // Send leave detail to Leave_Detail sheet
+  const leaveResult = await sendLeaveDetail(student, type, fDate, tDate, comment);
+  
+  // ✅ V12.4: PERFORMANCE FIX - Remove slow success alert, silent success
+  try {
+    const absentResult = await uploadSingleAttendance(student, "absent");
+    console.log(`✅ Leave saved & ${student.name} marked ABSENT`, absentResult);
+    
+    // ✅ V12.4: Silent success - no alert for faster UX
+    // Only show alert on error
+  } catch (error) {
+    console.error('❌ Failed to mark absent:', error);
+    alert('⚠️ Leave saved but attendance marking failed. Please mark manually.');
+  }
+}
+
+// ✅ V12.17: Sync ALL classes when tab becomes visible (user returns to tab)
+document.addEventListener('visibilitychange', async () => {
+  if (!document.hidden && g_dataLoadStatus === 'success') {
+    console.log('👁️ V12.17: Tab visible - triggering sync for ALL classes');
+    await syncAllClassesOnLoad();
+  }
+});
+
+console.log('📱 GPS Sheinwal v15.7 (UID-Free + V43.2 Integration) loaded!');
+console.log('🎨 v15.7 NEW Features:');
+console.log('  ✅ NEW: Auto-sync ALL classes on initial load');
+console.log('  ✅ NEW: Auto-sync ALL classes every 1 minute');
+console.log('  ✅ NEW: Auto-sync on tab visibility change');
+console.log('  ✅ NEW: Auto-sync on class selection change');
+console.log('  ✅ NEW: Urdu names displayed next to English names');
+console.log('  ✅ IMPROVED: No need to manually select class for sync');
+console.log('  ✅ ALL BADGES: Uniform size 85×30px');
+console.log('📊 Compatible with: Google Apps Script v38.0+');
+console.log('⚡ System Status: Ready with Auto-Sync Enabled');
+
+    window.addEventListener('beforeunload', () => {
+      saveToLocalStorage();
+      stopRoznamchaAutoRefresh();
+      stopClassAutoSync();
+    });
+  </script>
+</body>
+</html>
